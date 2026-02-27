@@ -1,0 +1,568 @@
+<div id="predictor" class="tab-content active">
+            <div class="card">
+                <h2>🔮 Shear Capacity Predictor</h2>
+                <div class="input-grid">
+                    <div class="form-group"><label>Beam Name / ID</label><input type="text" id="beam_name"
+                            value="LC-150x60x1.5" placeholder="e.g., LC-150x60x1.5" oninput="liveUpdate()"></div>
+                    <div class="form-group"><label>Length L (mm)</label><input type="number" step="0.01" id="length"
+                            value="1500" oninput="liveUpdate()"></div>
+                    <div class="form-group"><label>Opening Ratio (dwh/d1) [0 to 0.8]</label><input type="number"
+                            step="0.2" min="0" max="0.8" id="dwh_d1" value="0.4" oninput="liveUpdate()"></div>
+                    <div class="form-group"><label>d1 (mm)</label><input type="number" step="0.01" id="d1" value="144"
+                            oninput="liveUpdate()"></div>
+                    <div class="form-group"><label>tw - Web Thickness (mm)</label><input type="number" step="0.01"
+                            id="tw" value="1.5" oninput="liveUpdate()"></div>
+                    <div class="form-group"><label>Flange Width (mm)</label><input type="number" step="0.01"
+                            id="flange_width" value="60" oninput="liveUpdate()"></div>
+                    <div class="form-group"><label>Total Depth D (mm)</label><input type="number" step="0.01"
+                            id="total_depth" value="150" oninput="liveUpdate()"></div>
+                    <div class="form-group"><label>fyw - Yield Strength (MPa)</label><input type="number" step="0.01"
+                            id="fyw" value="349.1" oninput="liveUpdate()"></div>
+                    <div class="form-group"><label>E - Young's Modulus (MPa)</label>
+                        <input type="number" step="0.01" id="E" value="210000" oninput="liveUpdate()">
+                    </div>
+                    <div class="form-group"><label>a/d - Aspect Ratio</label><input type="number" step="0.01" id="a_d"
+                            value="1.0" oninput="liveUpdate()"></div>
+                </div>
+            </div>
+
+            <div class="card"
+                style="margin-top:20px; background: rgba(16, 185, 129, 0.1); border-left: 5px solid #10b981;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="color: #6ee7b7; margin: 0;">📁 Batch Prediction via Excel (.xlsx / .csv)</h3>
+                    <a href="sample_parametric_study.csv" download
+                        style="color: #6ee7b7; text-decoration: none; font-size: 0.9rem; background: rgba(16, 185, 129, 0.2); padding: 5px 10px; border-radius: 5px;">📥
+                        Download Sample CSV</a>
+                </div>
+                <p style="color: rgba(255,255,255,0.8); margin-bottom: 15px; font-size:0.9rem;">
+                    Upload an Excel file containing multiple sections for parametric study. It must include exactly
+                    these columns: <br>
+                    <strong style="color:white; font-size:0.8rem;">Depth of Web opening(dwh/d1), d1, tw, flange
+                        width(mm), total depth D (mm), fyw, E, a/d</strong>
+                </p>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <input type="file" id="excel_file" accept=".csv, .xlsx, .xls"
+                        style="flex:1; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; color:white; border: 1px dashed rgba(255,255,255,0.3);">
+                    <button onclick="uploadExcel()"
+                        style="width: auto; background: #10b981; padding: 10px 20px; font-size: 1rem; border-radius: 8px;">Upload
+                        & Get Results</button>
+                </div>
+                <div id="upload_status" style="margin-top: 10px; font-size: 0.9rem; color: #fde68a;"></div>
+            </div>
+
+            <button onclick="predictShear()">Calculate Shear Capacity</button>
+            <div id="results" class="results-section">
+                <!--=====BEAM GEOMETRY PREVIEW=====-->
+                <div id="beam-geometry-preview"
+                    style="background:#1a2340; border-radius:12px; padding:20px; margin-bottom:25px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:center;">
+                        <!-- Cross Section -->
+                        <div>
+                            <div
+                                style="color:#7ecfff; font-size:0.85rem; font-weight:700; letter-spacing:2px; margin-bottom:8px;">
+                                CROSS SECTION</div><canvas id="crossSectionPreview" width="280" height="200"
+                                style="display:block; margin:auto;"></canvas>
+                            <div style="text-align:center; color:#7ecfff; font-size:0.78rem; margin-top:6px;">Lipped
+                                Channel</div>
+                        </div><!-- 3D View -->
+                        <div>
+                            <div
+                                style="color:#7ecfff; font-size:0.85rem; font-weight:700; letter-spacing:2px; margin-bottom:8px;">
+                                3D VIEW</div><canvas id="threeDPreview" width="340" height="200"
+                                style="display:block; margin:auto;"></canvas>
+                        </div>
+                    </div>
+                </div><!--=====PREDICTED SHEAR CAPACITY BANNER=====-->
+                <div id="shear-result-banner"
+                    style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); border-radius:14px; padding:30px; text-align:center; margin-bottom:25px; box-shadow:0 8px 32px rgba(102,126,234,0.4);">
+                    <div style="color:rgba(255,255,255,0.85); font-size:1.1rem; font-weight:600; margin-bottom:6px;">
+                        Predicted Shear Capacity 🔗</div>
+                    <div id="shear-capacity-big"
+                        style="color:white; font-size:3.2rem; font-weight:900; letter-spacing:1px;">-</div>
+                    <div style="color:rgba(255,255,255,0.75); font-size:0.9rem; margin-top:6px;"
+                        id="shear-source-label">Source: Analytical (Formula)</div>
+                </div><!--=====LOAD COMPARISON+FEA STRESS DISTRIBUTION=====-->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:25px;">
+                    <!-- Load Comparison Bar Chart -->
+                    <div style="background:rgba(102,126,234,0.08); border-radius:12px; padding:20px;">
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;"><span
+                                style="font-size:1.6rem;">📊</span><span
+                                style="font-size:1.2rem; font-weight:700; color:#333;">Load Comparison</span></div>
+                        <canvas id="loadBarChart" height="260" style="width:100%;"></canvas>
+                    </div><!-- FEA Stress Distribution -->
+                    <div style="background:rgba(102,126,234,0.08); border-radius:12px; padding:20px;">
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;"><span
+                                style="font-size:1.6rem;">🖼️</span><span
+                                style="font-size:1.2rem; font-weight:700; color:#333;">FEA Stress
+                                Distribution</span>
+                        </div>
+                        <div
+                            style="background:white; border-radius:8px; padding:10px; border:1px solid rgba(255,255,255,0.1);">
+                            <canvas id="feaStressCanvas" width="360" height="200"
+                                style="width:100%; display:block;"></canvas>
+                            <div style="color:#888; font-size:0.78rem; margin-top:6px;">Max Stress: Opening Edge
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- Design Optimization Suggestions -->
+                <div id="optimization" style="display: none; margin-top: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">💡 Design Optimization Recommendations</h3>
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                        <!-- Capacity Analysis -->
+                        <div
+                            style="background: rgba(33, 150, 243, 0.1); padding: 20px; border-radius: 8px; border-left: 5px solid #2196f3;">
+                            <h4 style="color: #1565c0; margin-bottom: 12px;">📊 Capacity Analysis</h4>
+                            <div id="capacity-analysis" style="line-height: 1.8;"></div>
+                        </div><!-- Safety Factor -->
+                        <div
+                            style="background: rgba(255, 152, 0, 0.1); padding: 20px; border-radius: 8px; border-left: 5px solid #ff9800;">
+                            <h4 style="color: #e65100; margin-bottom: 12px;">⚠️ Safety Assessment</h4>
+                            <div id="safety-analysis" style="line-height: 1.8;"></div>
+                        </div>
+                    </div><!-- Optimization Suggestions -->
+                    <div
+                        style="background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%); padding: 25px; border-radius: 12px; border: 2px solid #4caf50;">
+                        <h4 style="color: #1b5e20; margin-bottom: 15px;">✨ Suggested Improvements</h4>
+                        <div id="optimization-suggestions" style="line-height: 2;"></div>
+                    </div>
+                </div>
+                <div class="card" style="background: rgba(255, 193, 7, 0.1); border-left: 6px solid #ffc107;">
+                    <h3 style="color: #856404; margin-bottom: 15px;">⚠️ Predicted Failure Mode</h3>
+                    <div style="font-size: 1.3rem; font-weight: bold; color: white; margin-bottom: 10px;"
+                        id="failure-mode">-</div>
+                    <p style="color: rgba(255, 255, 255, 0.7);" id="failure-description">Enter parameters and click
+                        calculate to see results
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- BEAM VISUALIZER TAB -->
+        <div id="visualizer" class="tab-content">
+            <div class="card">
+                <h2>ðŸŽ¨ Beam Section Properties & Failure Visualization</h2>
+                <p style="margin-bottom: 20px; color: rgba(255, 255, 255, 0.7);">Interactive visualizations showing
+                    beam
+                    geometry,
+                    stress distribution,
+                    failure patterns,
+                    and load behavior</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 20px;">
+                    <!-- Cross-Section -->
+                    <div style="border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 20px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">ðŸ“ Cross-Section Geometry</h3><canvas
+                            id="sectionCanvas" width="500" height="400"
+                            style="border: 1px solid rgba(255,255,255,0.1); border-radius: 4px;"></canvas>
+                        <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">Lipped
+                            channel
+                            section with circular
+                            web opening</p>
+                    </div><!-- Stress Distribution -->
+                    <div style="border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 20px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">ðŸŒ¡ï¸ Shear Stress Distribution</h3>
+                        <canvas id="stressCanvas" width="500" height="400"
+                            style="border: 1px solid rgba(255,255,255,0.1); border-radius: 4px;"></canvas>
+                        <div
+                            style="display: flex; justify-content: space-around; margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 30px; height: 20px; background: #0066cc; border-radius: 3px;">
+                                </div>
+                                <span style="font-size: 0.9rem;">Low</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 30px; height: 20px; background: #ffaa00; border-radius: 3px;">
+                                </div>
+                                <span style="font-size: 0.9rem;">Medium</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 30px; height: 20px; background: #ff3333; border-radius: 3px;">
+                                </div>
+                                <span style="font-size: 0.9rem;">High</span>
+                            </div>
+                        </div>
+                    </div><!-- Failure Pattern -->
+                    <div style="border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 20px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">âš ï¸ Failure Pattern Visualization</h3>
+                        <canvas id="failureCanvas" width="500" height="400"
+                            style="border: 1px solid rgba(255,255,255,0.1); border-radius: 4px;"></canvas>
+                        <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
+                            <strong>Mode:</strong>Vierendeel
+                            Mechanism<br><strong>Red dots:</strong>Plastic hinge locations
+                        </p>
+                    </div><!-- Load-Displacement -->
+                    <div style="border: 2px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 20px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">ðŸ“ˆ Load-Displacement Curve</h3><canvas
+                            id="loadCanvas" width="500" height="400"
+                            style="border: 1px solid rgba(255,255,255,0.1); border-radius: 4px;"></canvas>
+                        <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">Shows
+                            elastic,
+                            plastic,
+                            and softening behavior </p>
+                    </div>
+                </div>
+            </div>
+        </div><!-- FAILURE MODES TAB -->
+        <div id="failure-modes" class="tab-content">
+            <div class="card">
+                <h2>âš ï¸ Failure Modes in Perforated Beams</h2>
+                <div class="failure-modes-grid">
+                    <div class="failure-card">
+                        <h3>1. Shear Yielding</h3>
+                        <div class="failure-diagram"><svg width="100%" height="150" viewBox="0 0 300 150">
+                                <rect x="20" y="20" width="10" height="110" fill="#4a90e2"
+                                    stroke="rgba(255,255,255,0.8)" stroke-width="2" />
+                                <rect x="20" y="20" width="100" height="10" fill="#4a90e2"
+                                    stroke="rgba(255,255,255,0.8)" stroke-width="2" />
+                                <rect x="20" y="120" width="100" height="10" fill="#4a90e2"
+                                    stroke="rgba(255,255,255,0.8)" stroke-width="2" />
+                                <line x1="30" y1="40" x2="50" y2="110" stroke="#e74c3c" stroke-width="3"
+                                    marker-end="url(#arrow)" />
+                                <line x1="30" y1="110" x2="50" y2="40" stroke="#e74c3c" stroke-width="3"
+                                    marker-end="url(#arrow)" /><text x="150" y="75" fill="#e74c3c"
+                                    font-weight="bold">Diagonal Shear Stress</text>
+                                <defs>
+                                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="5" refY="3"
+                                        orient="auto" fill="#e74c3c">
+                                        <polygon points="0 0, 10 3, 0 6" />
+                                    </marker>
+                                </defs>
+                            </svg></div>
+                        <div class="why-section">
+                            <h4>Why It Happens:</h4>
+                            <ul>
+                                <li>Exceeds yield strength of web material</li>
+                                <li>Common in beams without openings</li>
+                                <li>Occurs when shear stress>0.6 Ã— fyw</li>
+                            </ul>
+                        </div>
+                        <div class="remedy-section">
+                            <h4>Remedies:</h4>
+                            <ul>
+                                <li>Increase web thickness</li>
+                                <li>Use higher grade steel</li>
+                                <li>Add web stiffeners</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="failure-card">
+                        <h3>2. Local Web Buckling</h3>
+                        <div class="failure-diagram"><svg width="100%" height="150" viewBox="0 0 300 150">
+                                <path d="M 30 30 Q 40 50, 30 70 Q 20 90, 30 110" fill="none" stroke="#e74c3c"
+                                    stroke-width="3" />
+                                <circle cx="50" cy="70" r="20" fill="none" stroke="#ff6b6b" stroke-width="2" /><text
+                                    x="100" y="40" fill="#e74c3c" font-weight="bold">Buckled Web</text><text x="100"
+                                    y="60" fill="#666">Around Opening</text>
+                            </svg></div>
+                        <div class="why-section">
+                            <h4>Why It Happens:</h4>
+                            <ul>
+                                <li>Small openings (ratio < 0.3)</li>
+                                <li>Stress concentration around hole</li>
+                                <li>Thin web with low d/tw ratio</li>
+                            </ul>
+                        </div>
+                        <div class="remedy-section">
+                            <h4>Remedies:</h4>
+                            <ul>
+                                <li>Reinforce opening edges</li>
+                                <li>Use thicker web plates</li>
+                                <li>Add ring stiffeners around opening</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="failure-card">
+                        <h3>3. Vierendeel Mechanism</h3>
+                        <div class="failure-diagram"><svg width="100%" height="150" viewBox="0 0 300 150">
+                                <rect x="20" y="30" width="200" height="10" fill="#4a90e2"
+                                    stroke="rgba(255,255,255,0.8)" stroke-width="2" />
+                                <rect x="20" y="110" width="200" height="10" fill="#4a90e2"
+                                    stroke="rgba(255,255,255,0.8)" stroke-width="2" />
+                                <circle cx="110" cy="75" r="35" fill="white" stroke="#e74c3c" stroke-width="3" />
+                                <path d="M 80 40 L 70 50" stroke="#e74c3c" stroke-width="3" marker-end="url(#arrow)" />
+                                <path d="M 140 40 L 150 50" stroke="#e74c3c" stroke-width="3"
+                                    marker-end="url(#arrow)" />
+                                <text x="230" y="75" fill="#e74c3c" font-weight="bold">Bending</text>
+                            </svg></div>
+                        <div class="why-section">
+                            <h4>Why It Happens:</h4>
+                            <ul>
+                                <li>Medium to large openings (0.3 < ratio < 0.6)</li>
+                                <li>Bending moments at opening corners</li>
+                                <li>Plastic hinges form around hole</li>
+                            </ul>
+                        </div>
+                        <div class="remedy-section">
+                            <h4>Remedies:</h4>
+                            <ul>
+                                <li>Reduce opening size</li>
+                                <li>Increase spacing from supports</li>
+                                <li>Add horizontal stiffeners</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="failure-card">
+                        <h3>4. Web-Post Buckling</h3>
+                        <div class="failure-diagram"><svg width="100%" height="150" viewBox="0 0 300 150">
+                                <path d="M 30 30 L 30 120" stroke="rgba(255,255,255,0.8)" stroke-width="3" />
+                                <path d="M 50 40 Q 60 75, 50 110" stroke="#e74c3c" stroke-width="4" />
+                                <circle cx="80" cy="75" r="25" fill="white" stroke="#ff6b6b" stroke-width="2" />
+                                <text x="150" y="50" fill="#e74c3c" font-weight="bold">Web-Post</text><text x="150"
+                                    y="70" fill="#e74c3c" font-weight="bold">Buckling</text><text x="30" y="140"
+                                    fill="#666">Support</text>
+                            </svg></div>
+                        <div class="why-section">
+                            <h4>Why It Happens:</h4>
+                            <ul>
+                                <li>Large openings (ratio > 0.6)</li>
+                                <li>Opening too close to support</li>
+                                <li>Compression buckles web segment</li>
+                            </ul>
+                        </div>
+                        <div class="remedy-section">
+                            <h4>Remedies:</h4>
+                            <ul>
+                                <li>Move opening away from support</li>
+                                <li>Add vertical stiffeners</li>
+                                <li>Reduce opening size</li>
+                                <li>Use diagonal bracing</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- FEA SIMULATION FAILURE VISUALIZATION -->
+            <div class="card" style="background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%); color: white;">
+                <h2 style="color: white;">🔬 FEA Simulation - Failure Prediction</h2>
+                <p style="color: #bbdefb; margin-bottom: 20px;">Stress visualization showing real-time failure
+                    patterns
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+                        <h3 style="color: #ffc107;">⚡ Diagonal Web Failure</h3><canvas id="feaDiagonalCanvas"
+                            width="350" height="180"
+                            style="background: rgba(255,255,255,0.05); border-radius: 8px; width: 100%;"></canvas>
+                        <p style="margin-top: 10px; font-size: 0.9rem;">🔴 Critical stress | 🟠 High | 🟢 Safe</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+                        <h3 style="color: #ffc107;">🔴 Perforation Failure</h3><canvas id="feaPerforationCanvas"
+                            width="350" height="180"
+                            style="background: rgba(255,255,255,0.05); border-radius: 8px; width: 100%;"></canvas>
+                        <p style="margin-top: 10px; font-size: 0.9rem;">■ Plastic hinges form at 4 corners</p>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px;">
+                    <h4>📊 Stress Scale: <span
+                            style="display: inline-block; width: 120px; height: 15px; background: linear-gradient(to right, #1565c0, #4caf50, #ffeb3b, #ff9800, #d32f2f); border-radius: 3px; vertical-align: middle;"></span>0
+                        → fy (Yield)</h4>
+                </div>
+                <div style="margin-top: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                    <div
+                        style="background: rgba(76,175,80,0.3); padding: 12px; border-radius: 8px; text-align: center; border-left: 4px solid #4caf50;">
+                        <strong>Shear Yielding</strong><br><span id="shear-yield-status">Calculate...</span>
+                    </div>
+                    <div
+                        style="background: rgba(255,152,0,0.3); padding: 12px; border-radius: 8px; text-align: center; border-left: 4px solid #ff9800;">
+                        <strong>Local Buckling</strong><br><span id="buckling-status">Calculate...</span>
+                    </div>
+                    <div
+                        style="background: rgba(244,67,54,0.3); padding: 12px; border-radius: 8px; text-align: center; border-left: 4px solid #f44336;">
+                        <strong>Vierendeel</strong><br><span id="vierendeel-status">Calculate...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <h2>ðŸ—ï¸ Where These Sections Are Used</h2>
+                <div class="applications">
+                    <h4>Common Applications:</h4>
+                    <ul>
+                        <li><strong>Building Structures:</strong>Floor joists,
+                            roof purlins,
+                            wall studs</li>
+                        <li><strong>Industrial Buildings:</strong>Crane rails,
+                            platform supports</li>
+                        <li><strong>Bridges:</strong>Deck supporting beams,
+                            secondary members</li>
+                        <li><strong>Automotive:</strong>Chassis rails,
+                            structural frames</li>
+                        <li><strong>Marine Structures:</strong>Ship decks,
+                            offshore platforms (corrosion resistant) </li>
+                        <li><strong>Food Processing:</strong>Hygienic environments requiring SS</li>
+                        <li><strong>Chemical Plants:</strong>Acid/alkali resistant structures</li>
+                    </ul>
+                    <h4 style="margin-top: 15px;">Why Perforations?</h4>
+                    <ul>
+                        <li>Service openings for pipes,
+                            cables,
+                            ducts</li>
+                        <li>Weight reduction (30-40% lighter)</li>
+                        <li>Cost savings on material</li>
+                        <li>Improved fire resistance (venting)</li>
+                    </ul>
+                </div>
+            </div>
+        </div><!-- GRAPHS TAB -->
+        <div id="graphs" class="tab-content"><!-- DYNAMIC LOAD GRAPH FROM PREDICTOR -->
+            <div class="card" id="dynamic-graph-card"
+                style="display: none; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 3px solid #4caf50;">
+                <h2 style="color: #1b5e20;">📊 Your Beam Load Analysis - Live Results</h2>
+                <p style="color: #2e7d32; margin-bottom: 20px;">📌 This graph updates automatically based on your
+                    beam
+                    parameters from the Predictor tab</p>
+                <div
+                    style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                    <h3 style="color: #667eea; text-align: center; margin-bottom: 20px;">Capacity Comparison Chart
+                    </h3>
+                    <canvas id="loadComparisonChart" width="800" height="400"></canvas>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                    <div
+                        style="background: rgba(255,255,255,0.9); padding: 15px; border-radius: 8px; border-left: 5px solid #2196f3;">
+                        <h4 style="color: #1976d2; margin-bottom: 10px;">💪 Shear Capacity Range</h4>
+                        <p id="shear-range-text" style="font-size: 1.1rem; font-weight: bold; color: white;">-</p>
+                    </div>
+                    <div
+                        style="background: rgba(255,255,255,0.9); padding: 15px; border-radius: 8px; border-left: 5px solid #ff9800;">
+                        <h4 style="color: #f57c00; margin-bottom: 10px;">⚡ Buckling Load Range</h4>
+                        <p id="buckling-range-text" style="font-size: 1.1rem; font-weight: bold; color: white;">-
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <h2>ðŸ“Š Model Performance - Key Metrics</h2>
+                <div class="image-grid">
+                    <div class="image-card">
+                        <h3>ðŸ† Model RÂ² Comparison</h3><img src="../output/model_comparison_r2.png"
+                            alt="R2 Comparison">
+                        <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ SVR
+                            leads
+                            with RÂ²=0.9952 (best
+                            fit)</p>
+                    </div>
+                    <div class="image-card">
+                        <h3>ðŸ“‰ Model MAPE Comparison</h3><img src="../output/model_comparison_mape.png"
+                            alt="MAPE Comparison">
+                        <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ Lowest
+                            error: MAPE=4.22% (SVR) </p>
+                    </div>
+                    <div class="image-card">
+                        <h3>ðŸŽ¯ Predicted vs Actual Values</h3><img src="../output/predicted_vs_actual.png"
+                            alt="Predictions">
+                        <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“
+                            Excellent
+                            agreement - points align
+                            on diagonal</p>
+                    </div>
+                    <div class="image-card">
+                        <h3>âš–ï¸ Methods Comparison</h3><img src="../output/comparison_ultimate_loads.png"
+                            alt="Methods">
+                        <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ ML vs
+                            FEA
+                            vs Eurocode vs
+                            Theoretical Methods</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <h2>ðŸŽ¯ Feature Importance Analysis</h2>
+                <div class="image-grid">
+                    <div class="image-card">
+                        <h3>ðŸ“Š Permutation Feature Importance</h3><img src="../output/permutation_importance.png"
+                            alt="Permutation Importance">
+                        <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ d1 and
+                            tw
+                            are most influential
+                            parameters</p>
+                    </div>
+                    <div class="image-card">
+                        <h3>ðŸ—ºï¸ Shear Capacity Contour Map</h3><img src="../output/contour_shear_capacity.png"
+                            alt="Contour">
+                        <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“
+                            Capacity
+                            variation with d1 and tw
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <h2>ðŸ“ˆ Comprehensive Metrics - Detailed Analysis</h2>
+                <div class="image-grid">
+                    <div class="image-card">
+                        <h3>ðŸ“Š All Metrics Comparison (RÂ², MAPE, MSE, MAE)</h3><img
+                            src="../output/comprehensive/metrics_comparison.png" alt="All Metrics">
+                        <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“
+                            Complete
+                            performance metrics for
+                            all 7 models</p>
+                    </div>
+                    <div class="image-card">
+                        <h3>ðŸ“‹ Performance Metrics Table</h3><img src="../output/comprehensive/metrics_table.png"
+                            alt="Metrics Table">
+                        <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“
+                            Detailed
+                            numerical comparison table
+                        </p>
+                    </div>
+                    <div class="image-card">
+                        <h3>ðŸŽ¯ Individual Model Predictions (All 6 Models)</h3><img
+                            src="../output/comprehensive/individual_model_predictions.png" alt="Individual Models">
+                        <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“
+                            Predicted
+                            vs Actual for each model
+                            separately</p>
+                    </div>
+                    <div class="image-card">
+                        <h3>ðŸ“‰ Residual Analysis (Top 4 Models)</h3><img
+                            src="../output/comprehensive/residual_plots.png" alt="Residuals">
+                        <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ Error
+                            distribution shows random
+                            scatter (good !)</p>
+                    </div>
+                    <div class="image-card">
+                        <h3>ðŸ“Š Error Distribution Histograms</h3><img
+                            src="../output/comprehensive/error_distributions.png" alt="Error Distributions">
+                        <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ Most
+                            errors
+                            centered around zero
+                        </p>
+                    </div>
+                    <div class="image-card">
+                        <h3>ðŸ”— Feature Relationships with Target</h3><img
+                            src="../output/comprehensive/feature_relationships.png" alt="Feature Relationships">
+                        <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ Shows
+                            correlation between each
+                            feature and shear capacity</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card"
+                style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 2px solid #4caf50;">
+                <h2 style="color: #1b5e20;">âœ… Summary: What These Graphs Tell Us</h2>
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px;">
+                        <h3 style="color: #4caf50; margin-bottom: 10px;">ðŸ† Best Model: SVR</h3>
+                        <ul style="line-height: 2;">
+                            <li><strong>RÂ²=0.9952</strong>(99.52% variance explained)</li>
+                            <li><strong>MAPE=4.22%</strong>(very low error)</li>
+                            <li><strong>MAE=1.91 kN</strong>(small absolute error)</li>
+                        </ul>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px;">
+                        <h3 style="color: #2196f3; margin-bottom: 10px;">ðŸŽ¯ Key Influencing Factors</h3>
+                        <ul style="line-height: 2;">
+                            <li><strong>d1 (web depth)</strong>- 85% influence</li>
+                            <li><strong>tw (thickness)</strong>- 78% influence</li>
+                            <li><strong>fyw (yield strength)</strong>- 52% influence</li>
+                        </ul>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px;">
+                        <h3 style="color: #ff9800; margin-bottom: 10px;">ðŸ“Š Model Reliability</h3>
+                        <ul style="line-height: 2;">
+                            <li>Residuals randomly distributed</li>
+                            <li>Errors centered around zero</li>
+                            <li>No systematic bias detected</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div><!-- APPLICATIONS TAB -->

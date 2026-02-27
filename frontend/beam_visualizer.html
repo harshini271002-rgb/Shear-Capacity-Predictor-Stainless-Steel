@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beam Section Visualizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+        }
+
+        .viz-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .viz-card {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .viz-card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        canvas {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .properties-table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+        }
+
+        .properties-table th,
+        .properties-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .properties-table th {
+            background: #667eea;
+            color: white;
+        }
+
+        .stress-legend {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 20px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔧 Beam Section Properties Visualizer</h1>
+
+        <div class="viz-grid">
+            <!-- Section Geometry -->
+            <div class="viz-card">
+                <h2>Cross-Section Geometry</h2>
+                <canvas id="sectionCanvas" width="500" height="400"></canvas>
+                <table class="properties-table">
+                    <tr>
+                        <th>Property</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>Total Depth (D)</td>
+                        <td id="prop-D">150 mm</td>
+                    </tr>
+                    <tr>
+                        <td>Web Depth (d1)</td>
+                        <td id="prop-d1">144 mm</td>
+                    </tr>
+                    <tr>
+                        <td>Web Thickness (tw)</td>
+                        <td id="prop-tw">1.5 mm</td>
+                    </tr>
+                    <tr>
+                        <td>Flange Width (b)</td>
+                        <td id="prop-b">60 mm</td>
+                    </tr>
+                    <tr>
+                        <td>Opening Ratio</td>
+                        <td id="prop-ratio">0.4</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Stress Distribution -->
+            <div class="viz-card">
+                <h2>Shear Stress Distribution</h2>
+                <canvas id="stressCanvas" width="500" height="400"></canvas>
+                <div class="stress-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #0066cc;"></div>
+                        <span>Low Stress</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ffaa00;"></div>
+                        <span>Medium Stress</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ff3333;"></div>
+                        <span>High Stress</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Failure Pattern -->
+            <div class="viz-card">
+                <h2>Failure Pattern Visualization</h2>
+                <canvas id="failureCanvas" width="500" height="400"></canvas>
+                <p style="margin-top: 15px; color: #666;">
+                    <strong>Failure Mode:</strong> <span id="failure-mode-text">Vierendeel Mechanism</span><br>
+                    <strong>Critical Location:</strong> <span id="critical-location">Around opening corners</span>
+                </p>
+            </div>
+
+            <!-- Load-Displacement -->
+            <div class="viz-card">
+                <h2>Load-Displacement Curve</h2>
+                <canvas id="loadCanvas" width="500" height="400"></canvas>
+                <p style="margin-top: 15px; color: #666;">
+                    <strong>Ultimate Load:</strong> <span id="ultimate-load">85.4 kN</span><br>
+                    <strong>Displacement at Failure:</strong> <span id="max-disp">12.3 mm</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Section Geometry Visualization
+        function drawSection() {
+            const canvas = document.getElementById('sectionCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Scale factor
+            const scale = 2.5;
+            const offsetX = 50;
+            const offsetY = 50;
+
+            // Dimensions
+            const D = 150;
+            const d1 = 144;
+            const tw = 1.5;
+            const bf = 60;
+            const tf = 3;
+            const lip = 12;
+
+            // Draw section
+            ctx.fillStyle = '#4a90e2';
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 2;
+
+            // Web
+            ctx.fillRect(offsetX, offsetY, tw * scale, D * scale);
+            ctx.strokeRect(offsetX, offsetY, tw * scale, D * scale);
+
+            // Top flange
+            ctx.fillRect(offsetX, offsetY, bf * scale, tf * scale);
+            ctx.strokeRect(offsetX, offsetY, bf * scale, tf * scale);
+
+            // Top lip
+            ctx.fillRect(offsetX + (bf - lip) * scale, offsetY, lip * scale, lip * scale);
+            ctx.strokeRect(offsetX + (bf - lip) * scale, offsetY, lip * scale, lip * scale);
+
+            // Bottom flange
+            ctx.fillRect(offsetX, offsetY + (D - tf) * scale, bf * scale, tf * scale);
+            ctx.strokeRect(offsetX, offsetY + (D - tf) * scale, bf * scale, tf * scale);
+
+            // Bottom lip
+            ctx.fillRect(offsetX + (bf - lip) * scale, offsetY + (D - lip) * scale, lip * scale, lip * scale);
+            ctx.strokeRect(offsetX + (bf - lip) * scale, offsetY + (D - lip) * scale, lip * scale, lip * scale);
+
+            // Web opening
+            const openingY = offsetY + (D / 2) * scale;
+            const openingR = (0.4 * d1 / 2) * scale;
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(offsetX + tw * scale / 2, openingY, openingR, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Dimension lines
+            ctx.strokeStyle = '#27ae60';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+
+            // D dimension
+            ctx.beginPath();
+            ctx.moveTo(offsetX + bf * scale + 20, offsetY);
+            ctx.lineTo(offsetX + bf * scale + 20, offsetY + D * scale);
+            ctx.stroke();
+
+            ctx.fillStyle = '#27ae60';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText('D', offsetX + bf * scale + 25, offsetY + D * scale / 2);
+
+            // tf dimension
+            ctx.beginPath();
+            ctx.moveTo(offsetX, offsetY - 15);
+            ctx.lineTo(offsetX + bf * scale, offsetY - 15);
+            ctx.stroke();
+            ctx.fillText('b', offsetX + bf * scale / 2 - 10, offsetY - 20);
+
+            ctx.setLineDash([]);
+        }
+
+        // Stress Distribution
+        function drawStress() {
+            const canvas = document.getElementById('stressCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const scale = 2.5;
+            const offsetX = 50;
+            const offsetY = 50;
+            const D = 150;
+            const tw = 1.5;
+
+            // Create gradient for stress
+            const gradient = ctx.createLinearGradient(0, offsetY, 0, offsetY + D * scale);
+            gradient.addColorStop(0, '#0066cc');
+            gradient.addColorStop(0.5, '#ffaa00');
+            gradient.addColorStop(1, '#ff3333');
+
+            // Draw stress distribution
+            ctx.fillStyle = gradient;
+            ctx.fillRect(offsetX, offsetY, tw * scale * 30, D * scale);
+
+            // Stress concentration around opening
+            const openingY = offsetY + (D / 2) * scale;
+            const openingR = (0.4 * 144 / 2) * scale;
+
+            ctx.fillStyle = 'rgba(255, 51, 51, 0.7)';
+            ctx.beginPath();
+            ctx.arc(offsetX + tw * scale * 15, openingY, openingR * 1.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw opening outline
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(offsetX + tw * scale * 15, openingY, openingR, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Add stress vectors
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            const arrowLength = 40;
+
+            for (let i = 0; i < 5; i++) {
+                const y = offsetY + (D * scale / 6) * (i + 1);
+                if (Math.abs(y - openingY) > openingR) {
+                    ctx.beginPath();
+                    ctx.moveTo(offsetX + tw * scale * 30 + 20, y);
+                    ctx.lineTo(offsetX + tw * scale * 30 + 20 + arrowLength, y);
+                    ctx.stroke();
+
+                    // Arrow head
+                    ctx.beginPath();
+                    ctx.moveTo(offsetX + tw * scale * 30 + 20 + arrowLength, y);
+                    ctx.lineTo(offsetX + tw * scale * 30 + 20 + arrowLength - 8, y - 5);
+                    ctx.lineTo(offsetX + tw * scale * 30 + 20 + arrowLength - 8, y + 5);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            }
+        }
+
+        // Failure Pattern
+        function drawFailure() {
+            const canvas = document.getElementById('failureCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const scale = 2.5;
+            const offsetX = 100;
+            const offsetY = 50;
+            const D = 150;
+            const L = 100;
+
+            // Draw beam outline
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(offsetX, offsetY, L * scale, D * scale);
+
+            // Draw opening
+            const openingX = offsetX + (L / 2) * scale;
+            const openingY = offsetY + (D / 2) * scale;
+            const openingR = (0.4 * 144 / 2) * scale;
+
+            ctx.beginPath();
+            ctx.arc(openingX, openingY, openingR, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Draw plastic hinges (Vierendeel mechanism)
+            const hingePositions = [
+                [openingX - openingR, openingY - openingR],
+                [openingX + openingR, openingY - openingR],
+                [openingX - openingR, openingY + openingR],
+                [openingX + openingR, openingY + openingR]
+            ];
+
+            ctx.fillStyle = '#ff3333';
+            hingePositions.forEach(pos => {
+                ctx.beginPath();
+                ctx.arc(pos[0], pos[1], 8, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Draw deformation (exaggerated)
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+
+            // Top segment bent
+            ctx.beginPath();
+            ctx.moveTo(offsetX, offsetY + D * scale / 2 - openingR);
+            ctx.quadraticCurveTo(
+                openingX,
+                offsetY + D * scale / 2 - openingR - 20,
+                offsetX + L * scale,
+                offsetY + D * scale / 2 - openingR
+            );
+            ctx.stroke();
+
+            // Bottom segment bent
+            ctx.beginPath();
+            ctx.moveTo(offsetX, offsetY + D * scale / 2 + openingR);
+            ctx.quadraticCurveTo(
+                openingX,
+                offsetY + D * scale / 2 + openingR + 20,
+                offsetX + L * scale,
+                offsetY + D * scale / 2 + openingR
+            );
+            ctx.stroke();
+
+            ctx.setLineDash([]);
+
+            // Labels
+            ctx.fillStyle = '#ff3333';
+            ctx.font = 'bold 12px Arial';
+            ctx.fillText('Plastic Hinge', openingX + openingR + 10, openingY - openingR - 10);
+        }
+
+        // Load-Displacement Curve
+        function drawLoadDisplacement() {
+            const canvas = document.getElementById('loadCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const padding = 60;
+            const width = canvas.width - 2 * padding;
+            const height = canvas.height - 2 * padding;
+
+            // Axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, padding + height);
+            ctx.lineTo(padding + width, padding + height);
+            ctx.stroke();
+
+            // Labels
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Arial';
+            ctx.fillText('Displacement (mm)', padding + width / 2 - 50, padding + height + 40);
+            ctx.save();
+            ctx.translate(20, padding + height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Load (kN)', -40, 0);
+            ctx.restore();
+
+            // Generate curve data (elastic-plastic)
+            const points = [];
+            for (let i = 0; i <= 100; i++) {
+                const disp = i * 0.15; // 0 to 15 mm
+                let load;
+                if (disp < 5) {
+                    // Elastic region
+                    load = disp * 17; // Linear up to 85 kN
+                } else if (disp < 10) {
+                    // Plastic region
+                    load = 85 + (disp - 5) * 0.5;
+                } else {
+                    // Softening
+                    load = 87.5 - (disp - 10) * 5;
+                    if (load < 0) load = 0;
+                }
+                points.push({ x: disp, y: load });
+            }
+
+            // Draw curve
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            points.forEach((point, i) => {
+                const x = padding + (point.x / 15) * width;
+                const y = padding + height - (point.y / 90) * height;
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.stroke();
+
+            // Mark ultimate load
+            const ultX = padding + (10 / 15) * width;
+            const ultY = padding + height - (87.5 / 90) * height;
+
+            ctx.fillStyle = '#ff3333';
+            ctx.beginPath();
+            ctx.arc(ultX, ultY, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ff3333';
+            ctx.font = 'bold 12px Arial';
+            ctx.fillText('Ultimate', ultX + 10, ultY - 10);
+            ctx.fillText('Load', ultX + 10, ultY + 5);
+
+            // Grid
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1;
+            for (let i = 1; i <= 4; i++) {
+                const y = padding + (height / 4) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(padding + width, y);
+                ctx.stroke();
+            }
+        }
+
+        // Initialize
+        drawSection();
+        drawStress();
+        drawFailure();
+        drawLoadDisplacement();
+    </script>
+</body>
+
+</html>

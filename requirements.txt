@@ -1,0 +1,13 @@
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+joblib
+fastapi
+uvicorn
+# Desired optional libraries
+catboost
+lightgbm
+xgboost
+shap

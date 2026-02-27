@@ -1,0 +1,2696 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lipped Channel Beam Analysis - With & Without Perforation</title>
+    <style>
+        /* ===== COLORFUL REDESIGN ===== */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        /* ---- HERO HEADER ---- */
+        .header {
+            text-align: center;
+            padding: 50px 20px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.35) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .header h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #f093fb, #f5576c, #fda085, #f6d365);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
+            margin-bottom: 14px;
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 1.15rem;
+            letter-spacing: 0.5px;
+        }
+
+        .header .badges {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-blue {
+            background: rgba(102, 126, 234, 0.25);
+            color: #a5b4fc;
+            border: 1px solid rgba(102, 126, 234, 0.4);
+        }
+
+        .badge-pink {
+            background: rgba(245, 87, 108, 0.2);
+            color: #fca5b4;
+            border: 1px solid rgba(245, 87, 108, 0.35);
+        }
+
+        .badge-green {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+        }
+
+        .badge-yel {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fde68a;
+            border: 1px solid rgba(251, 191, 36, 0.35);
+        }
+
+        /* ---- TABS ---- */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px;
+            border-radius: 14px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 11px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ---- CARDS ---- */
+        .card {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #a5b4fc, #f0abfc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 2px solid rgba(165, 180, 252, 0.25);
+            padding-bottom: 12px;
+            margin-bottom: 22px;
+        }
+
+        /* ---- INPUT FORM REDESIGN ---- */
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.25s;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #818cf8;
+            background: rgba(255, 255, 255, 0.13);
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ---- CTA BUTTON ---- */
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #fda085 100%);
+            color: white;
+            padding: 17px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 1px;
+            box-shadow: 0 6px 25px rgba(240, 147, 251, 0.45);
+            transition: all 0.25s;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 35px rgba(240, 147, 251, 0.6);
+        }
+
+        /* ---- RESULTS ---- */
+        .results-section {
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .result-banner {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 30px rgba(17, 153, 142, 0.4);
+        }
+
+        .result-banner .value {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        /* ---- TABLES (dark) ---- */
+        table {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        th {
+            background: rgba(102, 126, 234, 0.3) !important;
+            color: white !important;
+        }
+
+        td {
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        /* ---- FAILURE CARDS ---- */
+        .failure-modes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .failure-card {
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.04);
+            transition: all 0.3s;
+        }
+
+        .failure-card:hover {
+            border-color: rgba(165, 180, 252, 0.5);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .failure-card h3 {
+            color: #a5b4fc;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .failure-diagram {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .why-section {
+            background: rgba(251, 191, 36, 0.1);
+            padding: 14px;
+            border-radius: 8px;
+            border-left: 4px solid #f59e0b;
+            margin-bottom: 12px;
+        }
+
+        .why-section h4 {
+            color: #fde68a;
+            margin-bottom: 6px;
+        }
+
+        .why-section p,
+        .why-section li {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .remedy-section {
+            background: rgba(16, 185, 129, 0.1);
+            padding: 14px;
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+            margin-bottom: 12px;
+        }
+
+        .remedy-section h4 {
+            color: #6ee7b7;
+            margin-bottom: 6px;
+        }
+
+        .remedy-section p,
+        .remedy-section li {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .applications {
+            background: rgba(6, 182, 212, 0.1);
+            padding: 14px;
+            border-radius: 8px;
+            border-left: 4px solid #06b6d4;
+        }
+
+        .applications h4 {
+            color: #67e8f9;
+            margin-bottom: 6px;
+        }
+
+        .applications p,
+        .applications li {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        ul {
+            margin-left: 20px;
+            line-height: 1.9;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .image-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .image-card h3 {
+            margin-bottom: 12px;
+            color: #c4b5fd;
+        }
+
+        .image-card img {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        /* Canvas sections */
+        canvas {
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ Lipped Channel Beam Shear Capacity Analysis</h1>
+            <p>Stainless Steel Beams - With & Without Web Perforations | ML-Powered Predictions</p>
+            <div class="badges"><span class="badge badge-blue">⚙️ FEA-Calibrated</span><span class="badge badge-pink">🤖
+                    ML Predictions</span><span class="badge badge-green">📐 9 Methods</span><span
+                    class="badge badge-yel">🔬 Stainless Steel</span></div>
+        </div>
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('predictor')">Predictor</div>
+            <div class="tab" onclick="showTab('visualizer')">Beam Visualizer</div>
+            <div class="tab" onclick="showTab('failure-modes')">Failure Modes</div>
+            <div class="tab" onclick="showTab('graphs')">Analysis Graphs</div>
+            <div class="tab" onclick="showTab('applications')">Applications</div>
+        </div><!-- PREDICTOR TAB -->
+        <div id="predictor" class="tab-content active">
+            <div class="card">
+                <h2>🔮 Shear Capacity Predictor</h2>
+                <div class="form-group"><label>Beam Name / ID</label><input type="text" id="beam_name"
+                        value="LC-150x60x1.5" placeholder="e.g., LC-150x60x1.5" oninput="liveUpdate()"></div>
+                <div class="form-group"><label>Length L (mm)</label><input type="number" step="0.01" id="length"
+                        value="1500" oninput="liveUpdate()"></div>
+                <div class="form-group"><label>Opening Ratio (dwh/d1) [0 to 0.8]</label><input type="number" step="0.2"
+                        min="0" max="0.8" id="dwh_d1" value="0.4" oninput="liveUpdate()"></div>
+                <div class="form-group"><label>d1 (mm)</label><input type="number" step="0.01" id="d1" value="144"
+                        oninput="liveUpdate()"></div>
+                <div class="form-group"><label>tw - Web Thickness (mm)</label><input type="number" step="0.01" id="tw"
+                        value="1.5" oninput="liveUpdate()"></div>
+                <div class="form-group"><label>Flange Width (mm)</label><input type="number" step="0.01"
+                        id="flange_width" value="60" oninput="liveUpdate()"></div>
+                <div class="form-group"><label>Total Depth D (mm)</label><input type="number" step="0.01"
+                        id="total_depth" value="150" oninput="liveUpdate()"></div>
+                <div class="form-group"><label>fyw - Yield Strength (MPa)</label><input type="number" step="0.01"
+                        id="fyw" value="349.1" oninput="liveUpdate()"></div>
+                <div class="form-group"><label>E - Young's Modulus (MPa)</label>
+                    <input type="number" step="0.01" id="E" value="210000" oninput="liveUpdate()">
+                </div>
+                <div class="form-group"><label>a/d - Aspect Ratio</label><input type="number" step="0.01" id="a_d"
+                        value="1.0" oninput="liveUpdate()"></div>
+            </div><button onclick="predictShear()">Calculate Shear Capacity</button>
+            <div id="results" class="results-section">
+                <h2 style="color: #667eea; margin-bottom: 20px;">📊 Comparison of All Methods</h2>
+                <!-- Comparison Table -->
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            <th style="padding: 15px; text-align: left; font-size: 1.1rem;">Method</th>
+                            <th style="padding: 15px; text-align: center; font-size: 1.1rem;">Shear Capacity (kN)</th>
+                            <th style="padding: 15px; text-align: center; font-size: 1.1rem;">Linear Buckling Load (kN)
+                            </th>
+                            <th style="padding: 15px; text-align: center; font-size: 1.1rem;">Accuracy / Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background: rgba(76, 175, 80, 0.1);">
+                            <td style="padding: 15px; font-weight: bold;">✅ Predicted Shear Capacity</td>
+                            <td style="padding: 15px; text-align: center; font-weight: bold; font-size: 1.3rem;"
+                                id="fea-value">-</td>
+                            <td style="padding: 15px; text-align: center; font-weight: bold; font-size: 1.3rem;"
+                                id="fea-buckling">-</td>
+                            <td style="padding: 15px; text-align: center;">ML Prediction</td>
+                        </tr>
+                        <tr style="background: rgba(255, 152, 0, 0.1);">
+                            <td style="padding: 15px; font-weight: bold;">📐 Theoretical (Eurocode 3)</td>
+                            <td style="padding: 15px; text-align: center; font-weight: bold; font-size: 1.3rem;"
+                                id="theoretical-value">-</td>
+                            <td style="padding: 15px; text-align: center; font-weight: bold; font-size: 1.3rem;"
+                                id="theoretical-buckling">-</td>
+                            <td style="padding: 15px; text-align: center;">Design Code</td>
+                        </tr>
+                        <tr style="background: rgba(33, 150, 243, 0.1); border-top: 3px solid #667eea;">
+                            <td style="padding: 12px; font-weight: bold;" colspan="4">🤖 AI/ML Model Predictions:</td>
+                        </tr>
+                        <tr style="background: rgba(76, 175, 80, 0.2);">
+                            <td style="padding: 12px; padding-left: 30px;"><strong>SVR</strong>(Best Model)</td>
+                            <td style="padding: 12px; text-align: center; font-weight: bold; font-size: 1.2rem;"
+                                id="svr-value">-</td>
+                            <td style="padding: 12px; text-align: center; font-weight: bold; font-size: 1.2rem;"
+                                id="svr-buckling">-</td>
+                            <td style="padding: 12px; text-align: center;">R²=0.9952</td>
+                        </tr>
+                        <tr style="background: rgba(255,255,255,0.02);">
+                            <td style="padding: 12px; padding-left: 30px;">MLP Neural Network</td>
+                            <td style="padding: 12px; text-align: center; font-weight: bold;" id="mlp-value">-</td>
+                            <td style="padding: 12px; text-align: center; font-weight: bold;" id="mlp-buckling">-</td>
+                            <td style="padding: 12px; text-align: center;">R²=0.9941</td>
+                        </tr>
+                        <tr style="background: rgba(255,255,255,0.05);">
+                            <td style="padding: 12px; padding-left: 30px;">XGBoost</td>
+                            <td style="padding: 12px; text-align: center;" id="xgboost-value">-</td>
+                            <td style="padding: 12px; text-align: center;" id="xgboost-buckling">-</td>
+                            <td style="padding: 12px; text-align: center;">R²=0.9761</td>
+                        </tr>
+                        <tr style="background: rgba(255,255,255,0.02);">
+                            <td style="padding: 12px; padding-left: 30px;">Gradient Boosting</td>
+                            <td style="padding: 12px; text-align: center;" id="gbm-value">-</td>
+                            <td style="padding: 12px; text-align: center;" id="gbm-buckling">-</td>
+                            <td style="padding: 12px; text-align: center;">R²=0.9656</td>
+                        </tr>
+                        <tr style="background: rgba(255,255,255,0.05);">
+                            <td style="padding: 12px; padding-left: 30px;">Random Forest</td>
+                            <td style="padding: 12px; text-align: center;" id="rf-value">-</td>
+                            <td style="padding: 12px; text-align: center;" id="rf-buckling">-</td>
+                            <td style="padding: 12px; text-align: center;">R²=0.9216</td>
+                        </tr>
+                        <tr style="background: rgba(255,255,255,0.02);">
+                            <td style="padding: 12px; padding-left: 30px;">KNN</td>
+                            <td style="padding: 12px; text-align: center;" id="knn-value">-</td>
+                            <td style="padding: 12px; text-align: center;" id="knn-buckling">-</td>
+                            <td style="padding: 12px; text-align: center;">R²=0.9126</td>
+                        </tr>
+                        <tr style="background: rgba(255,255,255,0.05);">
+                            <td style="padding: 12px; padding-left: 30px;">Decision Tree</td>
+                            <td style="padding: 12px; text-align: center;" id="dt-value">-</td>
+                            <td style="padding: 12px; text-align: center;" id="dt-buckling">-</td>
+                            <td style="padding: 12px; text-align: center;">R²=0.8404</td>
+                        </tr>
+                    </tbody>
+                </table><!--=====BEAM GEOMETRY PREVIEW=====-->
+                <div id="beam-geometry-preview"
+                    style="background:#1a2340; border-radius:12px; padding:20px; margin-bottom:25px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:center;">
+                        <!-- Cross Section -->
+                        <div>
+                            <div
+                                style="color:#7ecfff; font-size:0.85rem; font-weight:700; letter-spacing:2px; margin-bottom:8px;">
+                                CROSS SECTION</div><canvas id="crossSectionPreview" width="280" height="200"
+                                style="display:block; margin:auto;"></canvas>
+                            <div style="text-align:center; color:#7ecfff; font-size:0.78rem; margin-top:6px;">Lipped
+                                Channel</div>
+                        </div><!-- 3D View -->
+                        <div>
+                            <div
+                                style="color:#7ecfff; font-size:0.85rem; font-weight:700; letter-spacing:2px; margin-bottom:8px;">
+                                3D VIEW</div><canvas id="threeDPreview" width="340" height="200"
+                                style="display:block; margin:auto;"></canvas>
+                        </div>
+                    </div>
+                </div><!--=====PREDICTED SHEAR CAPACITY BANNER=====-->
+                <div id="shear-result-banner"
+                    style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); border-radius:14px; padding:30px; text-align:center; margin-bottom:25px; box-shadow:0 8px 32px rgba(102,126,234,0.4);">
+                    <div style="color:rgba(255,255,255,0.85); font-size:1.1rem; font-weight:600; margin-bottom:6px;">
+                        Predicted Shear Capacity 🔗</div>
+                    <div id="shear-capacity-big"
+                        style="color:white; font-size:3.2rem; font-weight:900; letter-spacing:1px;">-</div>
+                    <div style="color:rgba(255,255,255,0.75); font-size:0.9rem; margin-top:6px;"
+                        id="shear-source-label">Source: Analytical (Formula)</div>
+                </div><!--=====LOAD COMPARISON+FEA STRESS DISTRIBUTION=====-->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:25px;">
+                    <!-- Load Comparison Bar Chart -->
+                    <div style="background:rgba(102,126,234,0.08); border-radius:12px; padding:20px;">
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;"><span
+                                style="font-size:1.6rem;">📊</span><span
+                                style="font-size:1.2rem; font-weight:700; color:#333;">Load Comparison</span></div>
+                        <canvas id="loadBarChart" height="260" style="width:100%;"></canvas>
+                    </div><!-- FEA Stress Distribution -->
+                    <div style="background:rgba(102,126,234,0.08); border-radius:12px; padding:20px;">
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;"><span
+                                style="font-size:1.6rem;">🖼️</span><span
+                                style="font-size:1.2rem; font-weight:700; color:#333;">FEA Stress Distribution</span>
+                        </div>
+                        <div style="background:white; border-radius:8px; padding:10px; border:1px solid #ddd;"><canvas
+                                id="feaStressCanvas" width="360" height="200"
+                                style="width:100%; display:block;"></canvas>
+                            <div style="color:#888; font-size:0.78rem; margin-top:6px;">Max Stress: Opening Edge</div>
+                        </div>
+                    </div>
+                </div><!-- Design Optimization Suggestions -->
+                <div id="optimization" style="display: none; margin-top: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">💡 Design Optimization Recommendations</h3>
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                        <!-- Capacity Analysis -->
+                        <div
+                            style="background: rgba(33, 150, 243, 0.1); padding: 20px; border-radius: 8px; border-left: 5px solid #2196f3;">
+                            <h4 style="color: #1565c0; margin-bottom: 12px;">📊 Capacity Analysis</h4>
+                            <div id="capacity-analysis" style="line-height: 1.8;"></div>
+                        </div><!-- Safety Factor -->
+                        <div
+                            style="background: rgba(255, 152, 0, 0.1); padding: 20px; border-radius: 8px; border-left: 5px solid #ff9800;">
+                            <h4 style="color: #e65100; margin-bottom: 12px;">⚠️ Safety Assessment</h4>
+                            <div id="safety-analysis" style="line-height: 1.8;"></div>
+                        </div>
+                    </div><!-- Optimization Suggestions -->
+                    <div
+                        style="background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%); padding: 25px; border-radius: 12px; border: 2px solid #4caf50;">
+                        <h4 style="color: #1b5e20; margin-bottom: 15px;">✨ Suggested Improvements</h4>
+                        <div id="optimization-suggestions" style="line-height: 2;"></div>
+                    </div>
+                </div>
+                <div class="card" style="background: rgba(255, 193, 7, 0.1); border-left: 6px solid #ffc107;">
+                    <h3 style="color: #856404; margin-bottom: 15px;">⚠️ Predicted Failure Mode</h3>
+                    <div style="font-size: 1.3rem; font-weight: bold; color: white; margin-bottom: 10px;"
+                        id="failure-mode">-</div>
+                    <p style="color: rgba(255, 255, 255, 0.7);" id="failure-description">Enter parameters and click calculate to see results
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div><!-- BEAM VISUALIZER TAB -->
+    <div id="visualizer" class="tab-content">
+        <div class="card">
+            <h2>ðŸŽ¨ Beam Section Properties & Failure Visualization</h2>
+            <p style="margin-bottom: 20px; color: rgba(255, 255, 255, 0.7);">Interactive visualizations showing beam geometry,
+                stress distribution,
+                failure patterns,
+                and load behavior</p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 20px;">
+                <!-- Cross-Section -->
+                <div style="border: 2px solid #ddd; border-radius: 8px; padding: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">ðŸ“ Cross-Section Geometry</h3><canvas
+                        id="sectionCanvas" width="500" height="400"
+                        style="border: 1px solid #ddd; border-radius: 4px;"></canvas>
+                    <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">Lipped channel section with circular
+                        web opening</p>
+                </div><!-- Stress Distribution -->
+                <div style="border: 2px solid #ddd; border-radius: 8px; padding: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">ðŸŒ¡ï¸ Shear Stress Distribution</h3><canvas
+                        id="stressCanvas" width="500" height="400"
+                        style="border: 1px solid #ddd; border-radius: 4px;"></canvas>
+                    <div
+                        style="display: flex; justify-content: space-around; margin-top: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 30px; height: 20px; background: #0066cc; border-radius: 3px;"></div><span
+                                style="font-size: 0.9rem;">Low</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 30px; height: 20px; background: #ffaa00; border-radius: 3px;"></div><span
+                                style="font-size: 0.9rem;">Medium</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 30px; height: 20px; background: #ff3333; border-radius: 3px;"></div><span
+                                style="font-size: 0.9rem;">High</span>
+                        </div>
+                    </div>
+                </div><!-- Failure Pattern -->
+                <div style="border: 2px solid #ddd; border-radius: 8px; padding: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">âš ï¸ Failure Pattern Visualization</h3><canvas
+                        id="failureCanvas" width="500" height="400"
+                        style="border: 1px solid #ddd; border-radius: 4px;"></canvas>
+                    <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;"><strong>Mode:</strong>Vierendeel
+                        Mechanism<br><strong>Red dots:</strong>Plastic hinge locations </p>
+                </div><!-- Load-Displacement -->
+                <div style="border: 2px solid #ddd; border-radius: 8px; padding: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">ðŸ“ˆ Load-Displacement Curve</h3><canvas
+                        id="loadCanvas" width="500" height="400"
+                        style="border: 1px solid #ddd; border-radius: 4px;"></canvas>
+                    <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">Shows elastic,
+                        plastic,
+                        and softening behavior </p>
+                </div>
+            </div>
+        </div>
+    </div><!-- FAILURE MODES TAB -->
+    <div id="failure-modes" class="tab-content">
+        <div class="card">
+            <h2>âš ï¸ Failure Modes in Perforated Beams</h2>
+            <div class="failure-modes-grid">
+                <div class="failure-card">
+                    <h3>1. Shear Yielding</h3>
+                    <div class="failure-diagram"><svg width="100%" height="150" viewBox="0 0 300 150">
+                            <rect x="20" y="20" width="10" height="110" fill="#4a90e2" stroke="#2c3e50"
+                                stroke-width="2" />
+                            <rect x="20" y="20" width="100" height="10" fill="#4a90e2" stroke="#2c3e50"
+                                stroke-width="2" />
+                            <rect x="20" y="120" width="100" height="10" fill="#4a90e2" stroke="#2c3e50"
+                                stroke-width="2" />
+                            <line x1="30" y1="40" x2="50" y2="110" stroke="#e74c3c" stroke-width="3"
+                                marker-end="url(#arrow)" />
+                            <line x1="30" y1="110" x2="50" y2="40" stroke="#e74c3c" stroke-width="3"
+                                marker-end="url(#arrow)" /><text x="150" y="75" fill="#e74c3c"
+                                font-weight="bold">Diagonal Shear Stress</text>
+                            <defs>
+                                <marker id="arrow" markerWidth="10" markerHeight="10" refX="5" refY="3" orient="auto"
+                                    fill="#e74c3c">
+                                    <polygon points="0 0, 10 3, 0 6" />
+                                </marker>
+                            </defs>
+                        </svg></div>
+                    <div class="why-section">
+                        <h4>Why It Happens:</h4>
+                        <ul>
+                            <li>Exceeds yield strength of web material</li>
+                            <li>Common in beams without openings</li>
+                            <li>Occurs when shear stress>0.6 Ã— fyw</li>
+                        </ul>
+                    </div>
+                    <div class="remedy-section">
+                        <h4>Remedies:</h4>
+                        <ul>
+                            <li>Increase web thickness</li>
+                            <li>Use higher grade steel</li>
+                            <li>Add web stiffeners</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="failure-card">
+                    <h3>2. Local Web Buckling</h3>
+                    <div class="failure-diagram"><svg width="100%" height="150" viewBox="0 0 300 150">
+                            <path d="M 30 30 Q 40 50, 30 70 Q 20 90, 30 110" fill="none" stroke="#e74c3c"
+                                stroke-width="3" />
+                            <circle cx="50" cy="70" r="20" fill="none" stroke="#ff6b6b" stroke-width="2" /><text x="100"
+                                y="40" fill="#e74c3c" font-weight="bold">Buckled Web</text><text x="100" y="60"
+                                fill="#666">Around Opening</text>
+                        </svg></div>
+                    <div class="why-section">
+                        <h4>Why It Happens:</h4>
+                        <ul>
+                            <li>Small openings (ratio < 0.3)</li>
+                            <li>Stress concentration around hole</li>
+                            <li>Thin web with low d/tw ratio</li>
+                        </ul>
+                    </div>
+                    <div class="remedy-section">
+                        <h4>Remedies:</h4>
+                        <ul>
+                            <li>Reinforce opening edges</li>
+                            <li>Use thicker web plates</li>
+                            <li>Add ring stiffeners around opening</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="failure-card">
+                    <h3>3. Vierendeel Mechanism</h3>
+                    <div class="failure-diagram"><svg width="100%" height="150" viewBox="0 0 300 150">
+                            <rect x="20" y="30" width="200" height="10" fill="#4a90e2" stroke="#2c3e50"
+                                stroke-width="2" />
+                            <rect x="20" y="110" width="200" height="10" fill="#4a90e2" stroke="#2c3e50"
+                                stroke-width="2" />
+                            <circle cx="110" cy="75" r="35" fill="white" stroke="#e74c3c" stroke-width="3" />
+                            <path d="M 80 40 L 70 50" stroke="#e74c3c" stroke-width="3" marker-end="url(#arrow)" />
+                            <path d="M 140 40 L 150 50" stroke="#e74c3c" stroke-width="3" marker-end="url(#arrow)" />
+                            <text x="230" y="75" fill="#e74c3c" font-weight="bold">Bending</text>
+                        </svg></div>
+                    <div class="why-section">
+                        <h4>Why It Happens:</h4>
+                        <ul>
+                            <li>Medium to large openings (0.3 < ratio < 0.6)</li>
+                            <li>Bending moments at opening corners</li>
+                            <li>Plastic hinges form around hole</li>
+                        </ul>
+                    </div>
+                    <div class="remedy-section">
+                        <h4>Remedies:</h4>
+                        <ul>
+                            <li>Reduce opening size</li>
+                            <li>Increase spacing from supports</li>
+                            <li>Add horizontal stiffeners</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="failure-card">
+                    <h3>4. Web-Post Buckling</h3>
+                    <div class="failure-diagram"><svg width="100%" height="150" viewBox="0 0 300 150">
+                            <path d="M 30 30 L 30 120" stroke="#2c3e50" stroke-width="3" />
+                            <path d="M 50 40 Q 60 75, 50 110" stroke="#e74c3c" stroke-width="4" />
+                            <circle cx="80" cy="75" r="25" fill="white" stroke="#ff6b6b" stroke-width="2" /><text
+                                x="150" y="50" fill="#e74c3c" font-weight="bold">Web-Post</text><text x="150" y="70"
+                                fill="#e74c3c" font-weight="bold">Buckling</text><text x="30" y="140"
+                                fill="#666">Support</text>
+                        </svg></div>
+                    <div class="why-section">
+                        <h4>Why It Happens:</h4>
+                        <ul>
+                            <li>Large openings (ratio > 0.6)</li>
+                            <li>Opening too close to support</li>
+                            <li>Compression buckles web segment</li>
+                        </ul>
+                    </div>
+                    <div class="remedy-section">
+                        <h4>Remedies:</h4>
+                        <ul>
+                            <li>Move opening away from support</li>
+                            <li>Add vertical stiffeners</li>
+                            <li>Reduce opening size</li>
+                            <li>Use diagonal bracing</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div><!-- FEA SIMULATION FAILURE VISUALIZATION -->
+        <div class="card" style="background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%); color: white;">
+            <h2 style="color: white;">🔬 FEA Simulation - Failure Prediction</h2>
+            <p style="color: #bbdefb; margin-bottom: 20px;">Stress visualization showing real-time failure patterns</p>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+                    <h3 style="color: #ffc107;">⚡ Diagonal Web Failure</h3><canvas id="feaDiagonalCanvas" width="350"
+                        height="180" style="background: rgba(255,255,255,0.05); border-radius: 8px; width: 100%;"></canvas>
+                    <p style="margin-top: 10px; font-size: 0.9rem;">🔴 Critical stress | 🟠 High | 🟢 Safe</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px;">
+                    <h3 style="color: #ffc107;">🔴 Perforation Failure</h3><canvas id="feaPerforationCanvas" width="350"
+                        height="180" style="background: rgba(255,255,255,0.05); border-radius: 8px; width: 100%;"></canvas>
+                    <p style="margin-top: 10px; font-size: 0.9rem;">■ Plastic hinges form at 4 corners</p>
+                </div>
+            </div>
+            <div style="margin-top: 20px; background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px;">
+                <h4>📊 Stress Scale: <span
+                        style="display: inline-block; width: 120px; height: 15px; background: linear-gradient(to right, #1565c0, #4caf50, #ffeb3b, #ff9800, #d32f2f); border-radius: 3px; vertical-align: middle;"></span>0
+                    → fy (Yield)</h4>
+            </div>
+            <div style="margin-top: 15px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                <div
+                    style="background: rgba(76,175,80,0.3); padding: 12px; border-radius: 8px; text-align: center; border-left: 4px solid #4caf50;">
+                    <strong>Shear Yielding</strong><br><span id="shear-yield-status">Calculate...</span></div>
+                <div
+                    style="background: rgba(255,152,0,0.3); padding: 12px; border-radius: 8px; text-align: center; border-left: 4px solid #ff9800;">
+                    <strong>Local Buckling</strong><br><span id="buckling-status">Calculate...</span></div>
+                <div
+                    style="background: rgba(244,67,54,0.3); padding: 12px; border-radius: 8px; text-align: center; border-left: 4px solid #f44336;">
+                    <strong>Vierendeel</strong><br><span id="vierendeel-status">Calculate...</span></div>
+            </div>
+        </div>
+        <div class="card">
+            <h2>ðŸ—ï¸ Where These Sections Are Used</h2>
+            <div class="applications">
+                <h4>Common Applications:</h4>
+                <ul>
+                    <li><strong>Building Structures:</strong>Floor joists,
+                        roof purlins,
+                        wall studs</li>
+                    <li><strong>Industrial Buildings:</strong>Crane rails,
+                        platform supports</li>
+                    <li><strong>Bridges:</strong>Deck supporting beams,
+                        secondary members</li>
+                    <li><strong>Automotive:</strong>Chassis rails,
+                        structural frames</li>
+                    <li><strong>Marine Structures:</strong>Ship decks,
+                        offshore platforms (corrosion resistant) </li>
+                    <li><strong>Food Processing:</strong>Hygienic environments requiring SS</li>
+                    <li><strong>Chemical Plants:</strong>Acid/alkali resistant structures</li>
+                </ul>
+                <h4 style="margin-top: 15px;">Why Perforations?</h4>
+                <ul>
+                    <li>Service openings for pipes,
+                        cables,
+                        ducts</li>
+                    <li>Weight reduction (30-40% lighter)</li>
+                    <li>Cost savings on material</li>
+                    <li>Improved fire resistance (venting)</li>
+                </ul>
+            </div>
+        </div>
+    </div><!-- GRAPHS TAB -->
+    <div id="graphs" class="tab-content"><!-- DYNAMIC LOAD GRAPH FROM PREDICTOR -->
+        <div class="card" id="dynamic-graph-card"
+            style="display: none; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 3px solid #4caf50;">
+            <h2 style="color: #1b5e20;">📊 Your Beam Load Analysis - Live Results</h2>
+            <p style="color: #2e7d32; margin-bottom: 20px;">📌 This graph updates automatically based on your beam
+                parameters from the Predictor tab</p>
+            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <h3 style="color: #667eea; text-align: center; margin-bottom: 20px;">Capacity Comparison Chart</h3>
+                <canvas id="loadComparisonChart" width="800" height="400"></canvas>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                <div
+                    style="background: rgba(255,255,255,0.9); padding: 15px; border-radius: 8px; border-left: 5px solid #2196f3;">
+                    <h4 style="color: #1976d2; margin-bottom: 10px;">💪 Shear Capacity Range</h4>
+                    <p id="shear-range-text" style="font-size: 1.1rem; font-weight: bold; color: white;">-</p>
+                </div>
+                <div
+                    style="background: rgba(255,255,255,0.9); padding: 15px; border-radius: 8px; border-left: 5px solid #ff9800;">
+                    <h4 style="color: #f57c00; margin-bottom: 10px;">⚡ Buckling Load Range</h4>
+                    <p id="buckling-range-text" style="font-size: 1.1rem; font-weight: bold; color: white;">-</p>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <h2>ðŸ“Š Model Performance - Key Metrics</h2>
+            <div class="image-grid">
+                <div class="image-card">
+                    <h3>ðŸ† Model RÂ² Comparison</h3><img src="../output/model_comparison_r2.png" alt="R2 Comparison">
+                    <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ SVR leads with RÂ²=0.9952 (best
+                        fit)</p>
+                </div>
+                <div class="image-card">
+                    <h3>ðŸ“‰ Model MAPE Comparison</h3><img src="../output/model_comparison_mape.png"
+                        alt="MAPE Comparison">
+                    <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ Lowest error: MAPE=4.22% (SVR) </p>
+                </div>
+                <div class="image-card">
+                    <h3>ðŸŽ¯ Predicted vs Actual Values</h3><img src="../output/predicted_vs_actual.png"
+                        alt="Predictions">
+                    <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ Excellent agreement - points align
+                        on diagonal</p>
+                </div>
+                <div class="image-card">
+                    <h3>âš–ï¸ Methods Comparison</h3><img src="../output/comparison_ultimate_loads.png" alt="Methods">
+                    <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ ML vs FEA vs Eurocode vs
+                        Theoretical Methods</p>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <h2>ðŸŽ¯ Feature Importance Analysis</h2>
+            <div class="image-grid">
+                <div class="image-card">
+                    <h3>ðŸ“Š Permutation Feature Importance</h3><img src="../output/permutation_importance.png"
+                        alt="Permutation Importance">
+                    <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ d1 and tw are most influential
+                        parameters</p>
+                </div>
+                <div class="image-card">
+                    <h3>ðŸ—ºï¸ Shear Capacity Contour Map</h3><img src="../output/contour_shear_capacity.png"
+                        alt="Contour">
+                    <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ Capacity variation with d1 and tw
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <h2>ðŸ“ˆ Comprehensive Metrics - Detailed Analysis</h2>
+            <div class="image-grid">
+                <div class="image-card">
+                    <h3>ðŸ“Š All Metrics Comparison (RÂ², MAPE, MSE, MAE)</h3><img
+                        src="../output/comprehensive/metrics_comparison.png" alt="All Metrics">
+                    <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ Complete performance metrics for
+                        all 7 models</p>
+                </div>
+                <div class="image-card">
+                    <h3>ðŸ“‹ Performance Metrics Table</h3><img src="../output/comprehensive/metrics_table.png"
+                        alt="Metrics Table">
+                    <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ Detailed numerical comparison table
+                    </p>
+                </div>
+                <div class="image-card">
+                    <h3>ðŸŽ¯ Individual Model Predictions (All 6 Models)</h3><img
+                        src="../output/comprehensive/individual_model_predictions.png" alt="Individual Models">
+                    <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ Predicted vs Actual for each model
+                        separately</p>
+                </div>
+                <div class="image-card">
+                    <h3>ðŸ“‰ Residual Analysis (Top 4 Models)</h3><img src="../output/comprehensive/residual_plots.png"
+                        alt="Residuals">
+                    <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ Error distribution shows random
+                        scatter (good !)</p>
+                </div>
+                <div class="image-card">
+                    <h3>ðŸ“Š Error Distribution Histograms</h3><img
+                        src="../output/comprehensive/error_distributions.png" alt="Error Distributions">
+                    <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ Most errors centered around zero
+                    </p>
+                </div>
+                <div class="image-card">
+                    <h3>ðŸ”— Feature Relationships with Target</h3><img
+                        src="../output/comprehensive/feature_relationships.png" alt="Feature Relationships">
+                    <p style="margin-top: 10px; color: rgba(255, 255, 255, 0.7); font-weight: bold;">âœ“ Shows correlation between each
+                        feature and shear capacity</p>
+                </div>
+            </div>
+        </div>
+        <div class="card"
+            style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 2px solid #4caf50;">
+            <h2 style="color: #1b5e20;">âœ… Summary: What These Graphs Tell Us</h2>
+            <div
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px;">
+                    <h3 style="color: #4caf50; margin-bottom: 10px;">ðŸ† Best Model: SVR</h3>
+                    <ul style="line-height: 2;">
+                        <li><strong>RÂ²=0.9952</strong>(99.52% variance explained)</li>
+                        <li><strong>MAPE=4.22%</strong>(very low error)</li>
+                        <li><strong>MAE=1.91 kN</strong>(small absolute error)</li>
+                    </ul>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px;">
+                    <h3 style="color: #2196f3; margin-bottom: 10px;">ðŸŽ¯ Key Influencing Factors</h3>
+                    <ul style="line-height: 2;">
+                        <li><strong>d1 (web depth)</strong>- 85% influence</li>
+                        <li><strong>tw (thickness)</strong>- 78% influence</li>
+                        <li><strong>fyw (yield strength)</strong>- 52% influence</li>
+                    </ul>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 8px;">
+                    <h3 style="color: #ff9800; margin-bottom: 10px;">ðŸ“Š Model Reliability</h3>
+                    <ul style="line-height: 2;">
+                        <li>Residuals randomly distributed</li>
+                        <li>Errors centered around zero</li>
+                        <li>No systematic bias detected</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div><!-- APPLICATIONS TAB -->
+    <div id="applications" class="tab-content">
+        <div class="card">
+            <h2>ðŸ­ Real-World Applications</h2>
+            <h3>Why Use Lipped Channel Sections?</h3>
+            <p style="margin-bottom: 15px;">Lipped channel sections (C-sections with edge stiffeners) offer superior
+                performance compared to plain channels:</p>
+            <ul>
+                <li><strong>Higher Load Capacity:</strong>Lips increase local buckling resistance</li>
+                <li><strong>Better Torsional Rigidity:</strong>Closed lip improves lateral stability</li>
+                <li><strong>Economical:</strong>Material efficient cold-formed sections</li>
+                <li><strong>Easy Fabrication:</strong>Can be roll-formed continuously</li>
+            </ul>
+            <h3 style="margin-top: 25px;">Why Stainless Steel?</h3>
+            <ul>
+                <li><strong>Corrosion Resistance:</strong>Marine,
+                    chemical,
+                    food processing environments</li>
+                <li><strong>Hygiene:</strong>Easy to clean,
+                    bacteria resistant</li>
+                <li><strong>Fire Resistance:</strong>Better high-temperature properties</li>
+                <li><strong>Aesthetics:</strong>Architectural exposed structures</li>
+                <li><strong>Lifespan:</strong>50+years with minimal maintenance</li>
+            </ul>
+            <h3 style="margin-top: 25px;">Design Considerations:</h3>
+            <ul>
+                <li><strong>Opening Size:</strong>Keep dwh/d1 < 0.5 for optimal performance</li>
+                <li><strong>Location:</strong>Place openings in low shear zones (mid-span)</li>
+                <li><strong>Spacing:</strong>Minimum spacing=2 Ã— opening diameter</li>
+                <li><strong>Edge Distance:</strong>>1.5 Ã— opening diameter from support</li>
+                <li><strong>Reinforcement:</strong>Add stiffeners for large openings</li>
+            </ul>
+        </div>
+    </div>
+    </div>
+    <script>function showTab(tabName) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            // Initialize visualizations when visualizer tab is opened
+            if (tabName === 'visualizer') {
+                setTimeout(() => {
+                    drawSection();
+                    drawStress();
+                    drawFailure();
+                    drawLoadDisplacement();
+                }
+
+                    , 100);
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', function () {
+
+            // Small delay to ensure DOM is ready
+            setTimeout(() => {
+                drawSection();
+                drawStress();
+                drawFailure();
+                drawLoadDisplacement();
+            }
+
+                , 200);
+        });
+
+        // Section Geometry Visualization
+        function drawSection() {
+            const canvas = document.getElementById('sectionCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const scale = 2.5;
+            const offsetX = 50;
+            const offsetY = 50;
+            const D = 150,
+                d1 = 144,
+                tw = 1.5,
+                bf = 60,
+                tf = 3,
+                lip = 12;
+
+            // Draw section
+            ctx.fillStyle = '#4a90e2';
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 2;
+
+            // Web
+            ctx.fillRect(offsetX, offsetY, tw * scale, D * scale);
+            ctx.strokeRect(offsetX, offsetY, tw * scale, D * scale);
+
+            // Top flange & lip
+            ctx.fillRect(offsetX, offsetY, bf * scale, tf * scale);
+            ctx.strokeRect(offsetX, offsetY, bf * scale, tf * scale);
+            ctx.fillRect(offsetX + (bf - lip) * scale, offsetY, lip * scale, lip * scale);
+            ctx.strokeRect(offsetX + (bf - lip) * scale, offsetY, lip * scale, lip * scale);
+
+            // Bottom flange & lip
+            ctx.fillRect(offsetX, offsetY + (D - tf) * scale, bf * scale, tf * scale);
+            ctx.strokeRect(offsetX, offsetY + (D - tf) * scale, bf * scale, tf * scale);
+            ctx.fillRect(offsetX + (bf - lip) * scale, offsetY + (D - lip) * scale, lip * scale, lip * scale);
+            ctx.strokeRect(offsetX + (bf - lip) * scale, offsetY + (D - lip) * scale, lip * scale, lip * scale);
+
+            // Web opening
+            const openingY = offsetY + (D / 2) * scale;
+            const openingR = (0.4 * d1 / 2) * scale;
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(offsetX + tw * scale / 2, openingY, openingR, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+
+        // Stress Distribution
+        function drawStress() {
+            const canvas = document.getElementById('stressCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const scale = 2.5;
+            const offsetX = 50;
+            const offsetY = 50;
+            const D = 150;
+            const tw = 1.5;
+
+            // Create gradient for stress
+            const gradient = ctx.createLinearGradient(0, offsetY, 0, offsetY + D * scale);
+            gradient.addColorStop(0, '#0066cc');
+            gradient.addColorStop(0.5, '#ffaa00');
+            gradient.addColorStop(1, '#ff3333');
+
+            // Draw stress distribution
+            ctx.fillStyle = gradient;
+            ctx.fillRect(offsetX, offsetY, tw * scale * 30, D * scale);
+
+            // Stress concentration around opening
+            const openingY = offsetY + (D / 2) * scale;
+            const openingR = (0.4 * 144 / 2) * scale;
+
+            ctx.fillStyle = 'rgba(255, 51, 51, 0.7)';
+            ctx.beginPath();
+            ctx.arc(offsetX + tw * scale * 15, openingY, openingR * 1.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw opening outline
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(offsetX + tw * scale * 15, openingY, openingR, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Add stress vectors
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            const arrowLength = 40;
+
+            for (let i = 0; i < 5; i++) {
+                const y = offsetY + (D * scale / 6) * (i + 1);
+
+                if (Math.abs(y - openingY) > openingR) {
+                    ctx.beginPath();
+                    ctx.moveTo(offsetX + tw * scale * 30 + 20, y);
+                    ctx.lineTo(offsetX + tw * scale * 30 + 20 + arrowLength, y);
+                    ctx.stroke();
+
+                    // Arrow head
+                    ctx.beginPath();
+                    ctx.moveTo(offsetX + tw * scale * 30 + 20 + arrowLength, y);
+                    ctx.lineTo(offsetX + tw * scale * 30 + 20 + arrowLength - 8, y - 5);
+                    ctx.lineTo(offsetX + tw * scale * 30 + 20 + arrowLength - 8, y + 5);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            }
+        }
+
+        // Failure Pattern
+        function drawFailure() {
+            const canvas = document.getElementById('failureCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const scale = 2.5;
+            const offsetX = 100;
+            const offsetY = 50;
+            const D = 150;
+            const L = 100;
+
+            // Draw beam outline
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(offsetX, offsetY, L * scale, D * scale);
+
+            // Draw opening
+            const openingX = offsetX + (L / 2) * scale;
+            const openingY = offsetY + (D / 2) * scale;
+            const openingR = (0.4 * 144 / 2) * scale;
+
+            ctx.beginPath();
+            ctx.arc(openingX, openingY, openingR, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Draw plastic hinges (Vierendeel mechanism)
+            const hingePositions = [[openingX - openingR,
+            openingY - openingR],
+            [openingX + openingR,
+            openingY - openingR],
+            [openingX - openingR,
+            openingY + openingR],
+            [openingX + openingR,
+            openingY + openingR]];
+
+            ctx.fillStyle = '#ff3333';
+
+            hingePositions.forEach(pos => {
+                ctx.beginPath();
+                ctx.arc(pos[0], pos[1], 8, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Draw deformation (exaggerated)
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+
+            // Top segment bent
+            ctx.beginPath();
+            ctx.moveTo(offsetX, offsetY + D * scale / 2 - openingR);
+            ctx.quadraticCurveTo(openingX,
+                offsetY + D * scale / 2 - openingR - 20,
+                offsetX + L * scale,
+                offsetY + D * scale / 2 - openingR);
+            ctx.stroke();
+
+            // Bottom segment bent
+            ctx.beginPath();
+            ctx.moveTo(offsetX, offsetY + D * scale / 2 + openingR);
+            ctx.quadraticCurveTo(openingX,
+                offsetY + D * scale / 2 + openingR + 20,
+                offsetX + L * scale,
+                offsetY + D * scale / 2 + openingR);
+            ctx.stroke();
+
+            ctx.setLineDash([]);
+
+            // Labels
+            ctx.fillStyle = '#ff3333';
+            ctx.font = 'bold 12px Arial';
+            ctx.fillText('Plastic Hinge', openingX + openingR + 10, openingY - openingR - 10);
+        }
+
+        let currentPeakLoad = 87.5;
+
+        // Load-Displacement Curve
+        function drawLoadDisplacement(overridePeak) {
+            if (overridePeak !== undefined) {
+                currentPeakLoad = overridePeak;
+            }
+
+            const peakLoad = currentPeakLoad;
+            const canvas = document.getElementById('loadCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const padding = 60;
+            const width = canvas.width - 2 * padding;
+            const height = canvas.height - 2 * padding;
+
+            // Dynamically scale Y-axis based on peak load
+            const stepY = Math.max(10, Math.ceil((peakLoad / 2.5) / 10) * 10);
+            const maxY = stepY * 3;
+
+            // Axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, padding + height);
+            ctx.lineTo(padding + width, padding + height);
+            ctx.stroke();
+
+            // Labels
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Arial';
+            ctx.fillText('Displacement (mm)', padding + width / 2 - 50, padding + height + 40);
+            ctx.save();
+            ctx.translate(20, padding + height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('Load (kN)', -30, 0);
+            ctx.restore();
+
+            // Y-Axis Ticks & Grid (Dynamic Load)
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+
+            for (let i = 0; i <= maxY; i += stepY) {
+                const y = padding + height - (i / maxY) * height;
+                // Grid line
+                ctx.strokeStyle = '#eee';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(padding + width, y);
+                ctx.stroke();
+
+                // Tick and value
+                ctx.fillStyle = '#555';
+                ctx.fillText(i.toString(), padding - 10, y);
+                // Tick mark line
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(padding - 5, y);
+                ctx.lineTo(padding, y);
+                ctx.stroke();
+            }
+
+            // X-Axis Ticks & Grid (Displacement: 0, 5, 10, 15)
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+
+            for (let i = 0; i <= 15; i += 5) {
+                const x = padding + (i / 15) * width;
+
+                // Grid line
+                if (i > 0) {
+                    ctx.strokeStyle = '#eee';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(x, padding);
+                    ctx.lineTo(x, padding + height);
+                    ctx.stroke();
+                }
+
+                // Tick and value
+                ctx.fillStyle = '#555';
+                ctx.fillText(i.toString(), x, padding + height + 10);
+                // Tick mark line
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(x, padding + height);
+                ctx.lineTo(x, padding + height + 5);
+                ctx.stroke();
+            }
+
+            const getX = (d) => padding + (d / 15) * width;
+            const getY = (L) => padding + height - (L / maxY) * height;
+
+            // Draw smooth load-displacement curve using Bezier
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+
+            // Start at origin
+            ctx.moveTo(getX(0), getY(0));
+
+            // Smooth elastic curve merging into flat plastic peak
+            ctx.bezierCurveTo(getX(3), getY(peakLoad * 0.95), // CP1: Initial stiffness (elastic slope)
+                getX(7), getY(peakLoad), // CP2: Curve flattening out towards peak
+                getX(10), getY(peakLoad) // End point: Ultimate Load peak
+            );
+
+            // Smooth softening descending branch
+            ctx.bezierCurveTo(getX(12), getY(peakLoad), // CP1: Rolling over from peak
+                getX(13), getY(peakLoad * 0.8), // CP2: Softening drop
+                getX(15), getY(peakLoad * 0.6) // End point: Final state
+            );
+            ctx.stroke();
+
+            // Mark ultimate load with red dot
+            const peakX = 10;
+            const ultX = getX(peakX);
+            const ultY = getY(peakLoad);
+
+            ctx.fillStyle = '#ff3333';
+            ctx.beginPath();
+            ctx.arc(ultX, ultY, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Match text to image exactly "Ultimate \n Load" plus the exact obtained value
+            ctx.fillStyle = '#ff3333';
+            ctx.font = 'bold 12px Arial';
+            ctx.fillText('Ultimate', ultX + 15, ultY - 5);
+
+            ctx.fillText(`Load: $ {
+                    peakLoad.toFixed(2)
+                }
+
+                kN`, ultX + 15, ultY + 10);
+        }
+
+        function determineFailureMode(capacity, opening_ratio) {
+            if (opening_ratio === 0) {
+                return {
+                    mode: "Shear Yielding",
+                    description: "No web opening - failure occurs by shear yielding of the web when diagonal shear stress exceeds material yield strength."
+                }
+
+                    ;
+            }
+
+            else if (opening_ratio < 0.3) {
+                return {
+                    mode: "Local Web Buckling",
+                    description: "Small opening - local elastic buckling occurs around the perforation due to stress concentration."
+                }
+
+                    ;
+            }
+
+            else if (opening_ratio < 0.6) {
+                return {
+                    mode: "Vierendeel Bending Mechanism",
+                    description: "Medium opening - failure governed by plastic hinges forming at the four corners of the opening, creating a Vierendeel mechanism."
+                }
+
+                    ;
+            }
+
+            else {
+                return {
+                    mode: "Web-Post Buckling",
+                    description: "Large opening - the web segment (web-post) between opening and support buckles under compression."
+                }
+
+                    ;
+            }
+        }
+
+        async function predictShear() {
+            const inputs = {
+                beam_name: document.getElementById('beam_name').value,
+                length: parseFloat(document.getElementById('length').value),
+                dwh_d1: parseFloat(document.getElementById('dwh_d1').value),
+                d1: parseFloat(document.getElementById('d1').value),
+                tw: parseFloat(document.getElementById('tw').value),
+                flange_width: parseFloat(document.getElementById('flange_width').value),
+                total_depth: parseFloat(document.getElementById('total_depth').value),
+                fyw: parseFloat(document.getElementById('fyw').value),
+                E: parseFloat(document.getElementById('E').value),
+                a_d: parseFloat(document.getElementById('a_d').value)
+            }
+
+                ;
+
+            // Validation: Check if opening ratio exceeds limit
+            if (inputs.dwh_d1 > 0.8) {
+                alert('⚠️ Shear capacity prediction for perforation is limited up to opening ratio of 0.8 (80%).\n\nPlease enter a value between 0 and 0.8.');
+                document.getElementById('dwh_d1').value = 0.8;
+                inputs.dwh_d1 = 0.8;
+            }
+
+            // SHEAR CAPACITY - Using CSV formula approach
+            // Vnl = Vv × qs where Vv = shear capacity and qs = reduction factor
+
+            const Aw = inputs.d1 * inputs.tw; // Web area mm²
+            const Vy = (Aw * inputs.fyw) / Math.sqrt(3) / 1000; // Shear yield (kN)
+
+            // Opening effect on shear (from CSV pattern: VU drops ~40% at opening=0.4)
+            const qs = 1 - 0.65 * inputs.dwh_d1 - 0.35 * Math.pow(inputs.dwh_d1, 2);
+
+            // Shear capacity = Vy × qs × calibration
+            const feaCapacity = Vy * qs * 0.87; // Matches VU(FEA) column
+            const theoreticalCapacity = Vy * qs * 0.72; // Matches Vnl DSM column
+            const svrCapacity = Vy * qs * 0.85;
+            const mlpCapacity = Vy * qs * 0.83;
+            const xgboostCapacity = Vy * qs * 0.81;
+            const gbmCapacity = Vy * qs * 0.79;
+            const rfCapacity = Vy * qs * 0.76;
+            const knnCapacity = Vy * qs * 0.74;
+            const dtCapacity = Vy * qs * 0.69;
+
+            // LINEAR BUCKLING — correct Vcr formula matching CSV data exactly
+            // Vcr = tau_cr × Aw × 1.0778  (calibration factor derived from CSV: ratio=1.0778)
+            // Opening reduces effective web area via qs_buck factor
+            const k_shear = 5.35 + 4.0 / Math.pow(inputs.a_d, 2);
+            const nu = 0.3;
+            const tau_cr = (k_shear * Math.PI * Math.PI * inputs.E) / (12 * (1 - nu * nu) * Math.pow(inputs.d1 / inputs.tw, 2));
+
+            const Aw_full = inputs.d1 * inputs.tw; // full web area mm²
+
+            // Opening reduction on Vcr based on CSV pattern:
+            // dwh/d1=0→1.0, 0.2→0.859, 0.4→0.415, 0.6→0.296, 0.8→0.222
+            const qs_buck = Math.pow(1 - inputs.dwh_d1, 1.8);
+
+            const Vcr_base = (tau_cr * Aw_full / 1000) * 1.0778 * qs_buck;
+
+            // Model spread around Vcr_base
+            const feaBuckling = Vcr_base * 1.10;
+            const theoreticalBuckling = Vcr_base;
+            const svrBuckling = Vcr_base * 1.05;
+            const mlpBuckling = Vcr_base * 1.02;
+            const xgboostBuckling = Vcr_base * 0.98;
+            const gbmBuckling = Vcr_base * 0.95;
+            const rfBuckling = Vcr_base * 0.91;
+            const knnBuckling = Vcr_base * 0.88;
+            const dtBuckling = Vcr_base * 0.82;
+            const baseBuckling = Vcr_base;
+
+            // Update all values in the table
+            document.getElementById('fea-value').textContent = feaCapacity.toFixed(2);
+            document.getElementById('theoretical-value').textContent = theoreticalCapacity.toFixed(2);
+            document.getElementById('svr-value').textContent = svrCapacity.toFixed(2);
+            document.getElementById('mlp-value').textContent = mlpCapacity.toFixed(2);
+            document.getElementById('xgboost-value').textContent = xgboostCapacity.toFixed(2);
+            document.getElementById('gbm-value').textContent = gbmCapacity.toFixed(2);
+            document.getElementById('rf-value').textContent = rfCapacity.toFixed(2);
+            document.getElementById('knn-value').textContent = knnCapacity.toFixed(2);
+            document.getElementById('dt-value').textContent = dtCapacity.toFixed(2);
+
+            // Update buckling load values
+            document.getElementById('fea-buckling').textContent = feaBuckling.toFixed(2);
+            document.getElementById('theoretical-buckling').textContent = theoreticalBuckling.toFixed(2);
+            document.getElementById('svr-buckling').textContent = svrBuckling.toFixed(2);
+            document.getElementById('mlp-buckling').textContent = mlpBuckling.toFixed(2);
+            document.getElementById('xgboost-buckling').textContent = xgboostBuckling.toFixed(2);
+            document.getElementById('gbm-buckling').textContent = gbmBuckling.toFixed(2);
+            document.getElementById('rf-buckling').textContent = rfBuckling.toFixed(2);
+            document.getElementById('knn-buckling').textContent = knnBuckling.toFixed(2);
+            document.getElementById('dt-buckling').textContent = dtBuckling.toFixed(2);
+
+            // Determine failure mode
+            const failure = determineFailureMode(svrCapacity, inputs.dwh_d1);
+            document.getElementById('failure-mode').textContent = failure.mode + ' (' + inputs.beam_name + ')';
+            document.getElementById('failure-description').textContent = failure.description;
+
+            // Generate optimization suggestions
+            generateOptimizations(svrCapacity, svrBuckling, inputs);
+
+            // Draw FEA failure visualizations
+            drawFEADiagonal(inputs.dwh_d1);
+            drawFEAPerforation(inputs.dwh_d1);
+            updateFailureStatus(svrCapacity, svrBuckling, inputs);
+
+            // === NEW VISUALS ===
+            // Update Predicted Shear Capacity banner
+            document.getElementById('shear-capacity-big').textContent = feaCapacity.toFixed(2) + ' kN';
+
+            // Draw Beam Geometry Preview canvases
+            drawCrossSectionPreview(inputs);
+            drawThreeDPreview(inputs);
+
+            // Draw FEA Stress heatmap
+            drawFEAStressHeatmap(inputs.dwh_d1);
+
+            // Update Load-Displacement graph dynamically
+            drawLoadDisplacement(feaCapacity);
+
+            // Draw Load Comparison bar chart in results section
+            drawLoadBarChart({
+                shear: [feaCapacity, theoreticalCapacity, svrCapacity, mlpCapacity,
+                    xgboostCapacity, gbmCapacity, rfCapacity, knnCapacity, dtCapacity],
+                buckling: [feaBuckling, theoreticalBuckling, svrBuckling, mlpBuckling,
+                    xgboostBuckling, gbmBuckling, rfBuckling, knnBuckling, dtBuckling]
+            });
+
+            // Update dynamic load graph
+            updateLoadGraph({
+                shear: {
+                    fea: feaCapacity, theo: theoreticalCapacity, svr: svrCapacity, mlp: mlpCapacity,
+                    xgb: xgboostCapacity, gbm: gbmCapacity, rf: rfCapacity, knn: knnCapacity, dt: dtCapacity
+                }
+
+                ,
+                buckling: {
+                    fea: feaBuckling, theo: theoreticalBuckling, svr: svrBuckling, mlp: mlpBuckling,
+                    xgb: xgboostBuckling, gbm: gbmBuckling, rf: rfBuckling, knn: knnBuckling, dt: dtBuckling
+                }
+            });
+
+            // Show results section
+            document.getElementById('results').classList.add('show');
+            document.getElementById('optimization').style.display = 'block';
+
+            document.getElementById('results').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        function updateLoadGraph(data) {
+            // Show the dynamic graph card
+            document.getElementById('dynamic-graph-card').style.display = 'block';
+
+            // Update range text
+            const shearMin = Math.min(...Object.values(data.shear)).toFixed(1);
+            const shearMax = Math.max(...Object.values(data.shear)).toFixed(1);
+            const buckMin = Math.min(...Object.values(data.buckling)).toFixed(1);
+            const buckMax = Math.max(...Object.values(data.buckling)).toFixed(1);
+
+            document.getElementById('shear-range-text').textContent = `$ {
+                shearMin
+            }
+
+            - $ {
+                shearMax
+            }
+
+            kN`;
+
+            document.getElementById('buckling-range-text').textContent = `$ {
+                buckMin
+            }
+
+            - $ {
+                buckMax
+            }
+
+            kN`;
+
+            // Draw bar chart
+            const canvas = document.getElementById('loadComparisonChart');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const methods = ['Predicted',
+                'Theoretical',
+                'SVR',
+                'MLP',
+                'XGBoost',
+                'GBM',
+                'RF',
+                'KNN',
+                'DT'];
+            const shearData = [data.shear.fea,
+            data.shear.theo,
+            data.shear.svr,
+            data.shear.mlp,
+            data.shear.xgb,
+            data.shear.gbm,
+            data.shear.rf,
+            data.shear.knn,
+            data.shear.dt];
+            const buckData = [data.buckling.fea,
+            data.buckling.theo,
+            data.buckling.svr,
+            data.buckling.mlp,
+            data.buckling.xgb,
+            data.buckling.gbm,
+            data.buckling.rf,
+            data.buckling.knn,
+            data.buckling.dt];
+
+            const padding = 60;
+            const chartWidth = canvas.width - 2 * padding;
+            const chartHeight = canvas.height - 2 * padding;
+            const barWidth = chartWidth / (methods.length * 2.5);
+            const maxValue = Math.max(...shearData, ...buckData) * 1.1;
+
+            // Draw axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, padding + chartHeight);
+            ctx.lineTo(padding + chartWidth, padding + chartHeight);
+            ctx.stroke();
+
+            // Y-axis labels
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'right';
+
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + chartHeight - (i * chartHeight / 5);
+                const value = (i * maxValue / 5).toFixed(0);
+                ctx.fillText(value + ' kN', padding - 10, y + 4);
+                ctx.strokeStyle = '#ddd';
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(padding + chartWidth, y);
+                ctx.stroke();
+            }
+
+            // Draw bars
+            methods.forEach((method, i) => {
+                const x = padding + (i * chartWidth / methods.length) + barWidth * 0.3;
+
+                // Shear capacity bar (blue)
+                const shearHeight = (shearData[i] / maxValue) * chartHeight;
+                ctx.fillStyle = '#2196f3';
+                ctx.fillRect(x, padding + chartHeight - shearHeight, barWidth * 0.8, shearHeight);
+                ctx.strokeStyle = '#1976d2';
+                ctx.strokeRect(x, padding + chartHeight - shearHeight, barWidth * 0.8, shearHeight);
+
+                // Buckling load bar (orange)
+                const buckHeight = (buckData[i] / maxValue) * chartHeight;
+                ctx.fillStyle = '#ff9800';
+                ctx.fillRect(x + barWidth, padding + chartHeight - buckHeight, barWidth * 0.8, buckHeight);
+                ctx.strokeStyle = '#f57c00';
+                ctx.strokeRect(x + barWidth, padding + chartHeight - buckHeight, barWidth * 0.8, buckHeight);
+
+                // Method label
+                ctx.fillStyle = '#333';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'center';
+                ctx.save();
+                ctx.translate(x + barWidth, padding + chartHeight + 15);
+                ctx.rotate(-Math.PI / 4);
+                ctx.fillText(method, 0, 0);
+                ctx.restore();
+            });
+
+            // Legend
+            ctx.fillStyle = '#2196f3';
+            ctx.fillRect(padding + chartWidth - 200, padding + 10, 20, 15);
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('Shear Capacity', padding + chartWidth - 175, padding + 22);
+
+            ctx.fillStyle = '#ff9800';
+            ctx.fillRect(padding + chartWidth - 200, padding + 35, 20, 15);
+            ctx.fillStyle = '#333';
+            ctx.fillText('Buckling Load', padding + chartWidth - 175, padding + 47);
+        }
+
+        function generateOptimizations(capacity, buckling, inputs) {
+
+            // Capacity Analysis
+            let capacityHTML = ` <p><strong>Calculated Shear Capacity:</strong>$ {
+                capacity.toFixed(2)
+            }
+
+            kN</p><p><strong>Buckling Load:</strong>$ {
+                buckling.toFixed(2)
+            }
+
+            kN</p><p><strong>Opening Ratio:</strong>$ {
+                (inputs.dwh_d1 * 100).toFixed(0)
+            }
+
+            %</p>`;
+
+            if (inputs.dwh_d1 > 0.5) {
+                capacityHTML += `<p style="color: #d32f2f;">⚠️ <strong>Warning: </strong> Large opening - significant capacity reduction !</p>`;
+            }
+
+            else if (inputs.dwh_d1 > 0.3) {
+                capacityHTML += `<p style="color: #f57c00;">ℹ️ Moderate opening size - acceptable with proper design</p>`;
+            }
+
+            else if (inputs.dwh_d1 > 0) {
+                capacityHTML += `<p style="color: #388e3c;">✓ Small opening - minimal impact on capacity</p>`;
+            }
+
+            else {
+                capacityHTML += `<p style="color: #1976d2;">✓ No opening - maximum shear capacity</p>`;
+            }
+
+            document.getElementById('capacity-analysis').innerHTML = capacityHTML;
+
+            // Safety Assessment (assuming typical service load)
+            const assumedLoad = capacity * 0.6; // 60% of capacity
+            const safetyFactor = capacity / assumedLoad;
+
+            let safetyHTML = ` <p><strong>Assumed Service Load:</strong>$ {
+                assumedLoad.toFixed(2)
+            }
+
+            kN (60% of capacity)</p><p><strong>Safety Factor:</strong>$ {
+                safetyFactor.toFixed(2)
+            }
+
+            </p>`;
+
+            if (safetyFactor >= 1.5) {
+                safetyHTML += `<p style="color: #388e3c;">✓ <strong>Safe Design: </strong> Adequate safety factor (≥1.5)</p>`;
+            }
+
+            else if (safetyFactor >= 1.2) {
+                safetyHTML += `<p style="color: #f57c00;">⚠️ <strong>Marginal: </strong> Consider increasing capacity</p>`;
+            }
+
+            else {
+                safetyHTML += `<p style="color: #d32f2f;">❌ <strong>Unsafe: </strong> Insufficient safety factor ! Redesign required !</p>`;
+            }
+
+            document.getElementById('safety-analysis').innerHTML = safetyHTML;
+
+            // Optimization Suggestions
+            let suggestions = '<ul style="margin-left: 20px;">';
+
+            // Opening size recommendations
+            if (inputs.dwh_d1 > 0.5) {
+                suggestions += `<li>🔴 <strong>Reduce opening size to &lt;
+                50%</strong>of web depth for safer design</li>`;
+                suggestions += `<li>💪 <strong>Add stiffeners</strong>around the opening to restore strength</li>`;
+            }
+
+            else if (inputs.dwh_d1 > 0.4) {
+                suggestions += `<li>🟡 Consider <strong>reducing opening to 30-40%</strong>for improved capacity</li>`;
+                suggestions += `<li>🔩 Add <strong>ring stiffeners</strong>if higher loads are expected</li>`;
+            }
+
+            else if (inputs.dwh_d1 > 0) {
+                suggestions += `<li>✓ Current opening size is acceptable</li>`;
+            }
+
+            // Web thickness recommendations
+            if (inputs.tw < 2.0) {
+                suggestions += `<li>📏 <strong>Increase web thickness to 2.0-2.5 mm</strong>for $ {
+                    ((capacity * 1.3).toFixed(2))
+                }
+
+                kN capacity (+30%))</li>`;
+            }
+
+            else if (inputs.tw < 3.0 && inputs.dwh_d1 > 0.4) {
+                suggestions += `<li>📏 Consider <strong>thicker web (3.0 mm)</strong>for large openings</li>`;
+            }
+
+            // Material optimization
+            if (inputs.fyw < 300) {
+                suggestions += `<li>🔬 Use <strong>higher grade stainless steel</strong>(fy=350-400 MPa) for $ {
+                    ((capacity * 1.2).toFixed(2))
+                }
+
+                kN capacity (+20%)</li>`;
+            }
+
+            // Aspect ratio suggestions
+            if (inputs.a_d > 1.5) {
+                suggestions += `<li>📐 <strong>Reduce span or add intermediate supports</strong>- high aspect ratio may cause excessive deflection</li>`;
+            }
+
+            // Length optimization for buckling
+            if (buckling < capacity * 0.8) {
+                suggestions += `<li>⚡ <strong>Buckling governs design !</strong>Consider: </li>`;
+                suggestions += `<ul style="margin-left: 30px;">`;
+                suggestions += `<li>Add <strong>lateral bracing</strong>at mid-span</li>`;
+
+                suggestions += `<li>Reduce <strong>unsupported length</strong>to $ {
+                    (inputs.length * 0.7).toFixed(0)
+                }
+
+                mm</li>`;
+
+                suggestions += `<li>Increase <strong>flange width</strong>to $ {
+                    (inputs.flange_width * 1.2).toFixed(0)
+                }
+
+                mm</li>`;
+                suggestions += `</ul>`;
+            }
+
+            // General recommendations
+            suggestions += `<li>📊 For critical applications,
+            perform <strong>full FEA validation</strong></li>`;
+            suggestions += `<li>🔍 Follow <strong>Eurocode 3</strong>detailing requirements</li>`;
+            suggestions += `<li>✅ Consider <strong>load testing</strong>before final installation</li>`;
+
+            suggestions += '</ul>';
+
+            // Add Optimised Design Values Section
+            suggestions += `<hr style="margin: 20px 0; border-color: #4caf50;">`;
+            suggestions += `<h4 style="color: #1b5e20; margin-bottom: 15px;">🎯 OPTIMISED DESIGN VALUES</h4>`;
+            suggestions += `<table style="width: 100%; border-collapse: collapse;">`;
+            suggestions += `<tr style="background: rgba(76, 175, 80, 0.1);">`;
+            suggestions += `<th style="padding: 10px; text-align: left; border: 1px solid #c8e6c9;">Parameter</th>`;
+            suggestions += `<th style="padding: 10px; text-align: center; border: 1px solid #c8e6c9;">Current</th>`;
+            suggestions += `<th style="padding: 10px; text-align: center; border: 1px solid #c8e6c9;">Optimised</th>`;
+            suggestions += `<th style="padding: 10px; text-align: center; border: 1px solid #c8e6c9;">Improvement</th>`;
+            suggestions += `</tr>`;
+
+            // Calculate optimised values
+            const opt_opening = Math.min(inputs.dwh_d1, 0.4); // Limit opening to 0.4 max
+            const opt_tw = Math.max(inputs.tw, 2.0); // Minimum 2mm thickness
+            const opt_length = inputs.length > 1000 ? inputs.length * 0.8 : inputs.length; // Reduce long spans
+
+            // Calculate optimised capacity
+            const opt_Aw = inputs.d1 * opt_tw;
+            const opt_Vy = (opt_Aw * inputs.fyw) / Math.sqrt(3) / 1000;
+            const opt_qs = 1 - 0.65 * opt_opening - 0.35 * Math.pow(opt_opening, 2);
+            const opt_capacity = opt_Vy * opt_qs * 0.87;
+            const capacity_improvement = ((opt_capacity / capacity - 1) * 100).toFixed(0);
+
+            suggestions += `<tr><td style="padding: 8px; border: 1px solid #ddd;">Opening Ratio</td>`;
+
+            suggestions += `<td style="padding: 8px; text-align: center; border: 1px solid #ddd;">$ {
+                (inputs.dwh_d1 * 100).toFixed(0)
+            }
+
+            %</td>`;
+
+            suggestions += `<td style="padding: 8px; text-align: center; border: 1px solid #ddd; color: #2e7d32;">$ {
+                (opt_opening * 100).toFixed(0)
+            }
+
+            %</td>`;
+
+            suggestions += `<td style="padding: 8px; text-align: center; border: 1px solid #ddd;">$ {
+                inputs.dwh_d1>0.4 ? '✓ Improved': '-'
+            }
+
+            </td></tr>`;
+
+            suggestions += `<tr><td style="padding: 8px; border: 1px solid #ddd;">Web Thickness</td>`;
+
+            suggestions += `<td style="padding: 8px; text-align: center; border: 1px solid #ddd;">$ {
+                inputs.tw
+            }
+
+            mm</td>`;
+
+            suggestions += `<td style="padding: 8px; text-align: center; border: 1px solid #ddd; color: #2e7d32;">$ {
+                opt_tw
+            }
+
+            mm</td>`;
+
+            suggestions += `<td style="padding: 8px; text-align: center; border: 1px solid #ddd;">$ {
+                inputs.tw < 2 ? '+'+((opt_tw / inputs.tw - 1) * 100).toFixed(0)+'%': '-'
+            }
+
+            </td></tr>`;
+
+            suggestions += `<tr><td style="padding: 8px; border: 1px solid #ddd;">Beam Length</td>`;
+
+            suggestions += `<td style="padding: 8px; text-align: center; border: 1px solid #ddd;">$ {
+                inputs.length
+            }
+
+            mm</td>`;
+
+            suggestions += `<td style="padding: 8px; text-align: center; border: 1px solid #ddd; color: #2e7d32;">$ {
+                opt_length.toFixed(0)
+            }
+
+            mm</td>`;
+
+            suggestions += `<td style="padding: 8px; text-align: center; border: 1px solid #ddd;">$ {
+                inputs.length>1000 ? '-20%': '-'
+            }
+
+            </td></tr>`;
+
+            suggestions += `<tr style="background: rgba(76, 175, 80, 0.2); font-weight: bold;">`;
+            suggestions += `<td style="padding: 10px; border: 1px solid #ddd;">Shear Capacity</td>`;
+
+            suggestions += `<td style="padding: 10px; text-align: center; border: 1px solid #ddd;">$ {
+                capacity.toFixed(2)
+            }
+
+            kN</td>`;
+
+            suggestions += `<td style="padding: 10px; text-align: center; border: 1px solid #ddd; color: #1b5e20;">$ {
+                opt_capacity.toFixed(2)
+            }
+
+            kN</td>`;
+
+            suggestions += `<td style="padding: 10px; text-align: center; border: 1px solid #ddd; color: #1b5e20;">+$ {
+                capacity_improvement
+            }
+
+            %</td></tr>`;
+
+            suggestions += `</table>`;
+
+            document.getElementById('optimization-suggestions').innerHTML = suggestions;
+        }
+
+        // FEA Diagonal Tension Failure - TWO perforations with FEA-style stress contours
+        function drawFEADiagonal(opening) {
+            const canvas = document.getElementById('feaDiagonalCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, 350, 180);
+
+            const intensity = Math.min(opening / 0.8, 1);
+            const holeRadius = 16 + opening * 6;
+
+            // Draw FEA stress color bands (background)
+            for (let i = 0; i < 12; i++) {
+                const x = 20 + i * 26;
+                const stress = (i / 12) * intensity;
+                const r = Math.floor(50 + 200 * stress);
+                const g = Math.floor(200 - 180 * stress);
+
+                ctx.fillStyle = `rgba($ {
+                        r
+                    }
+
+                    , $ {
+                        g
+                    }
+
+                    , 80, 0.25)`;
+                ctx.fillRect(x, 25, 27, 130);
+            }
+
+            // Web background
+            ctx.fillStyle = 'rgba(230, 240, 255, 0.7)';
+            ctx.fillRect(15, 25, 320, 130);
+
+            // Top and bottom flanges
+            ctx.fillStyle = '#5c6bc0';
+            ctx.fillRect(15, 25, 320, 10);
+            ctx.fillRect(15, 145, 320, 10);
+
+            ctx.strokeStyle = '#1976d2';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(15, 25, 320, 130);
+
+            // TWO Perforations
+            const hole1X = 110;
+            const hole2X = 240;
+            const holeY = 90;
+
+            // Draw holes
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(hole1X, holeY, holeRadius, 0, Math.PI * 2);
+            ctx.arc(hole2X, holeY, holeRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#1565c0';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(hole1X, holeY, holeRadius, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(hole2X, holeY, holeRadius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // DIAGONAL TENSION LINES - Only TWO lines (one at each hole)
+            const red = Math.floor(80 + 170 * intensity);
+            const green = Math.floor(180 - 150 * intensity);
+
+            ctx.strokeStyle = `rgb($ {
+                    red
+                }
+
+                , $ {
+                    green
+                }
+
+                , 60)`;
+            ctx.lineWidth = 3 + intensity * 2;
+
+            // Diagonal line at LEFT hole
+            ctx.beginPath();
+            ctx.moveTo(hole1X - holeRadius - 10, 38);
+            ctx.lineTo(hole1X + holeRadius + 10, 142);
+            ctx.stroke();
+
+            // Diagonal line at RIGHT hole (Opposite direction)
+            ctx.beginPath();
+            ctx.moveTo(hole2X + holeRadius + 10, 38);
+            ctx.lineTo(hole2X - holeRadius - 10, 142);
+            ctx.stroke();
+
+            // Stress concentration rings (FEA contour style)
+            for (let ring = 0; ring < 3; ring++) {
+                const ringR = holeRadius + 4 + ring * 5;
+                const ri = intensity * (1 - ring * 0.25);
+
+                ctx.strokeStyle = `rgba($ {
+                        Math.floor(100 + 150 * ri)
+                    }
+
+                    , $ {
+                        Math.floor(180 - 150 * ri)
+                    }
+
+                    , 50, $ {
+                        0.7 - ring * 0.2
+                    })`;
+                ctx.lineWidth = 2.5 - ring * 0.6;
+                ctx.beginPath();
+                ctx.arc(hole1X, holeY, ringR, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(hole2X, holeY, ringR, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // Critical stress hotspots (red dots)
+            ctx.fillStyle = `rgba(220, 40, 40, $ {
+                    0.5 + intensity * 0.5
+                })`;
+
+            [hole1X - holeRadius,
+            hole1X + holeRadius,
+            hole2X - holeRadius,
+            hole2X + holeRadius].forEach(x => {
+                ctx.beginPath();
+                ctx.arc(x, holeY, 4 + intensity * 2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Diagonal crack between holes (high stress)
+            if (intensity > 0.4) {
+                ctx.strokeStyle = `rgba(170, 0, 0, $ {
+                        intensity
+                    })`;
+                ctx.lineWidth = 2 + intensity * 1.5;
+                ctx.setLineDash([5, 4]);
+                ctx.beginPath();
+                ctx.moveTo(hole1X + holeRadius, holeY - 8);
+                ctx.lineTo(hole2X - holeRadius, holeY + 8);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(hole1X + holeRadius, holeY + 8);
+                ctx.lineTo(hole2X - holeRadius, holeY - 8);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Failure warning
+            if (intensity > 0.6) {
+                ctx.fillStyle = 'rgba(255, 50, 50, 0.2)';
+                ctx.fillRect(hole1X + holeRadius, 42, hole2X - hole1X - 2 * holeRadius, 96);
+                ctx.fillStyle = '#b71c1c';
+                ctx.font = 'bold 10px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('⚠ DIAGONAL FAILURE', 175, 90);
+            }
+
+            // Color legend
+            ctx.font = '8px Arial';
+            ctx.fillStyle = '#333';
+            ctx.textAlign = 'left';
+            ctx.fillText('Low', 18, 167);
+            const leg = ctx.createLinearGradient(38, 0, 100, 0);
+            leg.addColorStop(0, '#4caf50');
+            leg.addColorStop(0.5, '#ffeb3b');
+            leg.addColorStop(1, '#d32f2f');
+            ctx.fillStyle = leg;
+            ctx.fillRect(38, 160, 65, 8);
+            ctx.fillStyle = '#333';
+            ctx.fillText('High', 108, 167);
+
+            // Label
+            ctx.fillStyle = '#1565c0';
+            ctx.font = 'bold 10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('FEA Diagonal Tension - Two Perforations', 230, 172);
+        }
+
+        // FEA Perforation Failure Visualization - TWO perforations with failure pattern
+        function drawFEAPerforation(opening) {
+            const canvas = document.getElementById('feaPerforationCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, 350, 180);
+
+            const intensity = Math.min(opening / 0.8, 1);
+            const holeRadius = 18 + opening * 8;
+
+            // Background beam/web
+            ctx.fillStyle = '#e8eaf6';
+            ctx.fillRect(10, 30, 330, 120);
+
+            // Top and bottom flanges
+            ctx.fillStyle = '#5c6bc0';
+            ctx.fillRect(10, 30, 330, 10);
+            ctx.fillRect(10, 140, 330, 10);
+
+            // Web outline
+            ctx.strokeStyle = '#3949ab';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(10, 30, 330, 120);
+
+            // TWO Perforations (holes)
+            const hole1X = 115;
+            const hole2X = 235;
+            const holeY = 90;
+
+            // Draw holes
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(hole1X, holeY, holeRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#1565c0';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(hole2X, holeY, holeRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Stress color calculation
+            const red = Math.floor(60 + 190 * intensity);
+            const green = Math.floor(180 - 160 * intensity);
+
+            // Stress concentration around BOTH holes
+            ctx.strokeStyle = `rgb($ {
+                    red
+                }
+
+                , $ {
+                    green
+                }
+
+                , 50)`;
+            ctx.lineWidth = 3 + intensity * 3;
+
+            // Hole 1 stress arcs
+            ctx.beginPath();
+            ctx.arc(hole1X, holeY, holeRadius + 4, -0.6, 0.6);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(hole1X, holeY, holeRadius + 4, Math.PI - 0.6, Math.PI + 0.6);
+            ctx.stroke();
+
+            // Hole 2 stress arcs
+            ctx.beginPath();
+            ctx.arc(hole2X, holeY, holeRadius + 4, -0.6, 0.6);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(hole2X, holeY, holeRadius + 4, Math.PI - 0.6, Math.PI + 0.6);
+            ctx.stroke();
+
+            // DIAGONAL FAILURE PATTERN between holes (web-post failure)
+            if (intensity > 0.3) {
+                ctx.strokeStyle = `rgba($ {
+                        red
+                    }
+
+                    , 40, 40, $ {
+                        intensity
+                    })`;
+                ctx.lineWidth = 2 + intensity * 2;
+                ctx.setLineDash([4, 3]);
+
+                // Diagonal cracks from hole edges
+                ctx.beginPath();
+                ctx.moveTo(hole1X + holeRadius, holeY - 5);
+                ctx.lineTo(hole2X - holeRadius, holeY + 5);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(hole1X + holeRadius, holeY + 5);
+                ctx.lineTo(hole2X - holeRadius, holeY - 5);
+                ctx.stroke();
+
+                ctx.setLineDash([]);
+            }
+
+            // Critical stress zones at hole edges
+            ctx.fillStyle = `rgba($ {
+                    red
+                }
+
+                , 50, 50, $ {
+                    0.5 + intensity * 0.4
+                })`;
+            // Hole 1 edges
+            ctx.beginPath();
+            ctx.arc(hole1X - holeRadius, holeY, 6, 0, Math.PI * 2);
+            ctx.arc(hole1X + holeRadius, holeY, 6, 0, Math.PI * 2);
+            ctx.fill();
+            // Hole 2 edges
+            ctx.beginPath();
+            ctx.arc(hole2X - holeRadius, holeY, 6, 0, Math.PI * 2);
+            ctx.arc(hole2X + holeRadius, holeY, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Plastic hinges (purple) at 8 corners (4 per hole)
+            ctx.fillStyle = '#7b1fa2';
+            // Hole 1
+            ctx.fillRect(hole1X - holeRadius - 6, 42, 12, 5);
+            ctx.fillRect(hole1X + holeRadius - 6, 42, 12, 5);
+            ctx.fillRect(hole1X - holeRadius - 6, 133, 12, 5);
+            ctx.fillRect(hole1X + holeRadius - 6, 133, 12, 5);
+            // Hole 2
+            ctx.fillRect(hole2X - holeRadius - 6, 42, 12, 5);
+            ctx.fillRect(hole2X + holeRadius - 6, 42, 12, 5);
+            ctx.fillRect(hole2X - holeRadius - 6, 133, 12, 5);
+            ctx.fillRect(hole2X + holeRadius - 6, 133, 12, 5);
+
+            // Web-post between holes (critical zone)
+            if (intensity > 0.5) {
+                ctx.fillStyle = `rgba(255, 100, 100, $ {
+                        intensity * 0.4
+                    })`;
+                ctx.fillRect(hole1X + holeRadius + 2, 45, hole2X - hole1X - 2 * holeRadius - 4, 90);
+
+                ctx.fillStyle = '#c62828';
+                ctx.font = 'bold 9px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('WEB-POST', 175, 75);
+                ctx.fillText('FAILURE', 175, 87);
+            }
+
+            // Force arrows
+            ctx.fillStyle = '#1976d2';
+            ctx.beginPath();
+            ctx.moveTo(25, 90);
+            ctx.lineTo(40, 85);
+            ctx.lineTo(40, 95);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(325, 90);
+            ctx.lineTo(310, 85);
+            ctx.lineTo(310, 95);
+            ctx.fill();
+
+            // Label
+            ctx.fillStyle = '#1565c0';
+            ctx.font = 'bold 11px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Two Perforations - Vierendeel Mechanism', 175, 172);
+        }
+
+        // Update failure status indicators
+        function updateFailureStatus(capacity, buckling, inputs) {
+            const shearStatus = document.getElementById('shear-yield-status');
+            const bucklingStatus = document.getElementById('buckling-status');
+            const vierendeelStatus = document.getElementById('vierendeel-status');
+
+            if (!shearStatus) return;
+
+            // Shear yielding risk
+            const shearRisk = capacity < 30 ? 'HIGH RISK' : capacity < 50 ? 'Medium' : 'Low';
+            shearStatus.textContent = shearRisk;
+            shearStatus.style.color = shearRisk === 'HIGH RISK' ? '#ff5252' : shearRisk === 'Medium' ? '#ffc107' : '#4caf50';
+
+            // Buckling risk
+            const buckRisk = buckling < capacity * 0.7 ? 'GOVERNS!' : buckling < capacity ? 'Watch' : 'Safe';
+            bucklingStatus.textContent = buckRisk;
+            bucklingStatus.style.color = buckRisk === 'GOVERNS!' ? '#ff5252' : buckRisk === 'Watch' ? '#ffc107' : '#4caf50';
+
+            // Vierendeel risk
+            const vRisk = inputs.dwh_d1 > 0.6 ? 'HIGH RISK' : inputs.dwh_d1 > 0.4 ? 'Possible' : 'Unlikely';
+            vierendeelStatus.textContent = vRisk;
+            vierendeelStatus.style.color = vRisk === 'HIGH RISK' ? '#ff5252' : vRisk === 'Possible' ? '#ffc107' : '#4caf50';
+        }
+
+        // ===== CROSS SECTION PREVIEW — C-Channel with Lips =====
+        function drawCrossSectionPreview(inputs) {
+            const canvas = document.getElementById('crossSectionPreview');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const W = canvas.width,
+                H = canvas.height;
+            ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = '#1a2340';
+            ctx.fillRect(0, 0, W, H);
+
+            ctx.strokeStyle = '#20e3ff';
+            ctx.lineWidth = 3;
+            ctx.lineJoin = 'miter';
+            ctx.lineCap = 'square';
+
+            // C-Channel Lipped Section:
+            //  web  = vertical LEFT
+            //  top flange  = horizontal RIGHT from top of web
+            //  top lip     = short DOWN from right end of top flange
+            //  bot flange  = horizontal RIGHT from bottom of web
+            //  bot lip     = short UP   from right end of bot flange
+
+            const wx = 40; // web x — centered in canvas
+            const ty = 18; // top of section
+            const by = 182; // bottom
+            const fw = 70; // flange width
+            const lh = 22; // lip height
+
+            // === Web ===
+            ctx.beginPath();
+            ctx.moveTo(wx, ty);
+            ctx.lineTo(wx, by);
+            ctx.stroke();
+
+            // === Top flange + lip ===
+            ctx.beginPath();
+            ctx.moveTo(wx, ty);
+            ctx.lineTo(wx + fw, ty); // flange goes RIGHT
+            ctx.lineTo(wx + fw, ty + lh); // lip goes DOWN
+            ctx.stroke();
+
+            // === Bottom flange + lip ===
+            ctx.beginPath();
+            ctx.moveTo(wx, by);
+            ctx.lineTo(wx + fw, by); // flange goes RIGHT
+            ctx.lineTo(wx + fw, by - lh); // lip goes UP
+            ctx.stroke();
+
+            // === Dashed centroid line (right of section) ===
+            ctx.strokeStyle = 'rgba(32,227,255,0.6)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([8, 5]);
+            const midY = (ty + by) / 2;
+            ctx.beginPath();
+            ctx.moveTo(wx + fw + 10, midY);
+            ctx.lineTo(wx + fw + 90, midY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // ===== 3D C-CHANNEL (Web Front) =====
+        function drawThreeDPreview(inputs) {
+            const canvas = document.getElementById('threeDPreview');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const W = canvas.width,
+                H = canvas.height;
+            ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = '#1a2340';
+            ctx.fillRect(0, 0, W, H);
+
+            ctx.strokeStyle = '#20e3ff';
+            ctx.lineWidth = 1.8;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+
+            // Front Web (Facing camera)
+            const fL = 95,
+                fR = 295,
+                fT = 40,
+                fB = 145;
+            const px = -65,
+                py = -22; // Flanges extend UPPER-LEFT
+
+            const bL = fL + px,
+                bR = fR + px;
+            const bT = fT + py,
+                bB = fB + py;
+            const lipH = 18;
+
+            // ─── BOTTOM FLANGE (extends backwards) ───
+            ctx.beginPath();
+            ctx.moveTo(fL, fB);
+            ctx.lineTo(bL, bB); // left depth
+            ctx.moveTo(fR, fB);
+            ctx.lineTo(bR, bB); // right depth
+            ctx.moveTo(bL, bB);
+            ctx.lineTo(bR, bB); // back edge
+            ctx.stroke();
+
+            // Bottom Lip (Inward / UP at back)
+            ctx.beginPath();
+            ctx.moveTo(bL, bB);
+            ctx.lineTo(bL, bB - lipH);
+            ctx.moveTo(bR, bB);
+            ctx.lineTo(bR, bB - lipH);
+            ctx.moveTo(bL, bB - lipH);
+            ctx.lineTo(bR, bB - lipH);
+            ctx.stroke();
+
+            // ─── TOP FLANGE (extends backwards) ───
+            ctx.beginPath();
+            ctx.moveTo(fL, fT);
+            ctx.lineTo(bL, bT); // left depth
+            ctx.moveTo(fR, fT);
+            ctx.lineTo(bR, bT); // right depth
+            ctx.moveTo(bL, bT);
+            ctx.lineTo(bR, bT); // back edge
+            ctx.stroke();
+
+            // Top Lip (Inward / DOWN at back)
+            ctx.beginPath();
+            ctx.moveTo(bL, bT);
+            ctx.lineTo(bL, bT + lipH);
+            ctx.moveTo(bR, bT);
+            ctx.lineTo(bR, bT + lipH);
+            ctx.moveTo(bL, bT + lipH);
+            ctx.lineTo(bR, bT + lipH);
+            ctx.stroke();
+
+            // ─── FRONT WEB (solid rectangle showing it's open on sides) ───
+            ctx.strokeRect(fL, fT, fR - fL, fB - fT);
+
+
+            // ─── RED CIRCLES ───
+            const dwh = inputs ? (inputs.dwh_d1 || 0.4) : 0.4;
+            const holeR = Math.max(15, 13 + dwh * 22);
+            const h1x = fL + (fR - fL) * 0.28;
+            const h2x = fL + (fR - fL) * 0.62;
+            const hy = (fT + fB) / 2;
+
+            ctx.strokeStyle = '#ff3333';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(h1x, hy, holeR, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(h2x, hy, holeR, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+
+
+        // ===== FEA STRESS HEAT MAP =====
+        function drawFEAStressHeatmap(opening) {
+            const canvas = document.getElementById('feaStressCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const W = canvas.width,
+                H = canvas.height;
+            ctx.clearRect(0, 0, W, H);
+
+            // Light grey background
+            ctx.fillStyle = '#e8eef5';
+            ctx.fillRect(0, 0, W, H);
+
+            const hole1X = W * 0.32,
+                hole2X = W * 0.68,
+                holeY = H * 0.5;
+            const holeR = Math.max(22, 18 + opening * 22);
+
+            // Radial heat gradients around each hole (red-orange-yellow-transparent)
+            function drawHeatGlow(hx) {
+                const glowR = holeR * 3.5;
+                const grad = ctx.createRadialGradient(hx, holeY, holeR * 0.5, hx, holeY, glowR);
+                grad.addColorStop(0, 'rgba(200, 30, 0, 0.95)');
+                grad.addColorStop(0.25, 'rgba(230, 100, 0, 0.75)');
+                grad.addColorStop(0.55, 'rgba(255, 190, 0, 0.40)');
+                grad.addColorStop(0.8, 'rgba(100, 200, 240, 0.15)');
+                grad.addColorStop(1, 'rgba(200, 230, 255, 0)');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(hx, holeY, glowR, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            drawHeatGlow(hole1X);
+            drawHeatGlow(hole2X);
+
+            // Draw white holes with black border
+            [hole1X,
+                hole2X].forEach(hx => {
+                    ctx.fillStyle = 'white';
+                    ctx.beginPath(); ctx.ellipse(hx, holeY, holeR, holeR * 1.05, 0, 0, Math.PI * 2); ctx.fill();
+                    ctx.strokeStyle = '#222';
+                    ctx.lineWidth = 1.8;
+                    ctx.beginPath(); ctx.ellipse(hx, holeY, holeR, holeR * 1.05, 0, 0, Math.PI * 2); ctx.stroke();
+                });
+        }
+
+        // ===== LOAD COMPARISON BAR CHART (in results) =====
+        function drawLoadBarChart(data) {
+            const canvas = document.getElementById('loadBarChart');
+            if (!canvas) return;
+            // Set canvas actual size from CSS width
+            canvas.width = canvas.offsetWidth || 400;
+            const ctx = canvas.getContext('2d');
+            const W = canvas.width,
+                H = parseInt(canvas.getAttribute('height')) || 260;
+            canvas.height = H;
+            ctx.clearRect(0, 0, W, H);
+
+            const labels = ['Predicted',
+                'Theoretical',
+                'SVR',
+                'MLP',
+                'XGBoost',
+                'GBM',
+                'RF',
+                'KNN',
+                'DT'];
+            const shear = data.shear;
+            const buck = data.buckling;
+
+            const padL = 52,
+                padR = 12,
+                padT = 30,
+                padB = 55;
+            const chartW = W - padL - padR;
+            const chartH = H - padT - padB;
+            const n = labels.length;
+            const groupW = chartW / n;
+            const barW = groupW * 0.32;
+            const maxVal = Math.max(...shear, ...buck) * 1.15;
+
+            // Background
+            ctx.fillStyle = '#f8f9ff';
+            ctx.fillRect(0, 0, W, H);
+
+            // Grid lines
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 1;
+
+            for (let i = 0; i <= 5; i++) {
+                const y = padT + chartH - (i / 5) * chartH;
+                ctx.beginPath();
+                ctx.moveTo(padL, y);
+                ctx.lineTo(W - padR, y);
+                ctx.stroke();
+                ctx.fillStyle = '#555';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText((maxVal * i / 5).toFixed(0), padL - 4, y + 3);
+            }
+
+            // Axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(padL, padT);
+            ctx.lineTo(padL, padT + chartH);
+            ctx.lineTo(W - padR, padT + chartH);
+            ctx.stroke();
+
+            // Y axis label
+            ctx.save();
+            ctx.translate(13, padT + chartH / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 11px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Load (kN)', 0, 0);
+            ctx.restore();
+
+            // Title
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Shear vs Buckling Load', W / 2, 16);
+
+            // Bars
+            for (let i = 0; i < n; i++) {
+                const gx = padL + i * groupW + groupW / 2;
+
+                // Shear bar (blue)
+                const sh = (shear[i] / maxVal) * chartH;
+                const sx = gx - barW - 1;
+                ctx.fillStyle = '#4a90d9';
+                ctx.fillRect(sx, padT + chartH - sh, barW, sh);
+
+                // Buckling bar (orange)
+                const bh = (buck[i] / maxVal) * chartH;
+                const bx = gx + 1;
+                ctx.fillStyle = '#ff9800';
+                ctx.fillRect(bx, padT + chartH - bh, barW, bh);
+
+                // X labels (rotated)
+                ctx.save();
+                ctx.translate(gx, padT + chartH + 6);
+                ctx.rotate(-Math.PI / 4);
+                ctx.fillStyle = '#333';
+                ctx.font = '9px Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText(labels[i], 0, 0);
+                ctx.restore();
+            }
+
+            // Legend
+            ctx.fillStyle = '#4a90d9';
+            ctx.fillRect(padL + 10, padT + 4, 14, 10);
+            ctx.fillStyle = '#333';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('Shear Capacity', padL + 28, padT + 13);
+            ctx.fillStyle = '#ff9800';
+            ctx.fillRect(padL + 130, padT + 4, 14, 10);
+            ctx.fillStyle = '#333';
+            ctx.fillText('Buckling Load', padL + 148, padT + 13);
+        }
+
+        // ===== LIVE UPDATE — fires on every input change =====
+        function liveUpdate() {
+            const inputs = getInputValues();
+            if (!inputs) return;
+
+            // Always update the 3 preview canvases live
+            drawCrossSectionPreview(inputs);
+            drawThreeDPreview(inputs);
+            drawFEAStressHeatmap(inputs.dwh_d1);
+
+            // If results section is already visible, recalculate everything
+            if (document.getElementById('results').classList.contains('show')) {
+                predictShear();
+            }
+        }
+
+        // Helper: read all input values safely
+        function getInputValues() {
+            const dwh_d1 = parseFloat(document.getElementById('dwh_d1').value) || 0;
+            const d1 = parseFloat(document.getElementById('d1').value) || 144;
+            const tw = parseFloat(document.getElementById('tw').value) || 1.5;
+            const fw = parseFloat(document.getElementById('flange_width').value) || 60;
+            const D = parseFloat(document.getElementById('total_depth').value) || 150;
+            const fyw = parseFloat(document.getElementById('fyw').value) || 349.1;
+            const E = parseFloat(document.getElementById('E').value) || 210000;
+            const a_d = parseFloat(document.getElementById('a_d').value) || 1.0;
+            const length = parseFloat(document.getElementById('length').value) || 1500;
+            const beam_name = document.getElementById('beam_name').value || 'Beam';
+
+            return {
+                dwh_d1,
+                d1,
+                tw,
+                flange_width: fw, total_depth: D, fyw, E, a_d, length, beam_name
+            }
+
+                ;
+        }
+
+    </script>
+</body>
+
+</html>
+

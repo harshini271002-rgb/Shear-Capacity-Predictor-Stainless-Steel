@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Beam Analysis - ML Prediction Suite</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .nav-tabs {
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            sticky: top;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-tab {
+            padding: 15px 30px;
+            margin: 5px;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #667eea;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            font-size: 2rem;
+        }
+
+        .card h3 {
+            color: #764ba2;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        /* Predictor Styles */
+        .predictor-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 1200px) {
+            .predictor-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .result-banner {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .result-banner .value {
+            font-size: 4rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Beam Visualizer Styles */
+        .visualizer-container {
+            text-align: center;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        canvas {
+            max-width: 100%;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            margin: 20px 0;
+        }
+
+        /* Failure Modes Styles */
+        .failure-modes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .failure-modes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .failure-mode-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 6px solid #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .failure-mode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .failure-mode-card.active {
+            border-left-color: #38ef7d;
+            background: linear-gradient(135deg, #38ef7d 0%, #11998e 100%);
+            color: white;
+        }
+
+        .failure-mode-card h4 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+        }
+
+        .failure-mode-details {
+            display: none;
+            margin-top: 25px;
+            padding: 25px;
+            background: #fff3cd;
+            border-left: 6px solid #ffc107;
+            border-radius: 8px;
+        }
+
+        .failure-mode-details.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Analysis Graphs Styles */
+        .graphs-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        @media (max-width: 1000px) {
+            .graphs-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .graph-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .graph-card img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .graph-card h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        /* Applications Styles */
+        .applications-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .applications-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .application-card {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 30px;
+            border-radius: 12px;
+            transition: transform 0.3s;
+        }
+
+        .application-card:hover {
+            transform: scale(1.03);
+        }
+
+        .application-card h4 {
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .application-card ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        .metrics-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .metrics-table th,
+        .metrics-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .metrics-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 700;
+        }
+
+        .metrics-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .highlight-row {
+            background: #e8f5e9 !important;
+            font-weight: bold;
+        }
+
+        .dimension-labels {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .dimension-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 5px solid #667eea;
+        }
+
+        .dimension-item .label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .dimension-item .value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>🏗️ Comprehensive Beam Analysis Suite</h1>
+        <p>ML-Powered Shear Capacity Prediction for Perforated Lipped Channel Beams</p>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('predictor')">🔮 Predictor</button>
+        <button class="nav-tab" onclick="switchTab('visualizer')">📐 Beam Visualizer</button>
+        <button class="nav-tab" onclick="switchTab('failure-modes')">⚠️ Failure Modes</button>
+        <button class="nav-tab" onclick="switchTab('analysis')">📊 Analysis Graphs</button>
+        <button class="nav-tab" onclick="switchTab('applications')">🏢 Applications</button>
+    </div>
+
+    <div class="container">
+        <!-- TAB 1: PREDICTOR -->
+        <div id="predictor-tab" class="tab-content active">
+            <div class="card">
+                <h2>🔮 Shear Capacity Predictor</h2>
+
+                <div class="predictor-grid">
+                    <!-- Input Section -->
+                    <div>
+                        <h3>📝 Input Beam Parameters</h3>
+
+                        <!-- SVG Beam Diagram -->
+                        <div
+                            style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 12px; margin-bottom: 20px;">
+                            <svg width="100%" height="280" viewBox="0 0 400 280">
+                                <!-- Channel beam cross-section -->
+                                <rect x="50" y="40" width="20" height="200" fill="#4a90e2" stroke="#2c3e50"
+                                    stroke-width="2" />
+                                <rect x="50" y="40" width="120" height="20" fill="#4a90e2" stroke="#2c3e50"
+                                    stroke-width="2" />
+                                <rect x="150" y="40" width="20" height="40" fill="#4a90e2" stroke="#2c3e50"
+                                    stroke-width="2" />
+                                <rect x="50" y="220" width="120" height="20" fill="#4a90e2" stroke="#2c3e50"
+                                    stroke-width="2" />
+                                <rect x="150" y="200" width="20" height="40" fill="#4a90e2" stroke="#2c3e50"
+                                    stroke-width="2" />
+
+                                <!-- Web perforation -->
+                                <circle cx="60" cy="140" r="30" fill="white" stroke="#e74c3c" stroke-width="3" />
+
+                                <!-- Dimension lines -->
+                                <line x1="180" y1="40" x2="180" y2="240" stroke="#e74c3c" stroke-width="2"
+                                    marker-end="url(#arrow)" />
+                                <text x="190" y="145" fill="#e74c3c" font-weight="bold" font-size="16">D</text>
+
+                                <line x1="50" y1="260" x2="170" y2="260" stroke="#27ae60" stroke-width="2"
+                                    marker-end="url(#arrow2)" />
+                                <text x="100" y="275" fill="#27ae60" font-weight="bold" font-size="16">b</text>
+
+                                <defs>
+                                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="5" refY="3"
+                                        orient="auto" fill="#e74c3c">
+                                        <polygon points="0 0, 10 3, 0 6" />
+                                    </marker>
+                                    <marker id="arrow2" markerWidth="10" markerHeight="10" refX="5" refY="3"
+                                        orient="auto" fill="#27ae60">
+                                        <polygon points="0 0, 10 3, 0 6" />
+                                    </marker>
+                                </defs>
+                            </svg>
+                            <p style="color: #666; font-size: 0.9rem; margin-top: 10px;">Lipped Channel with Circular
+                                Web Opening</p>
+                        </div>
+
+                        <div class="input-grid">
+                            <div class="form-group">
+                                <label>Opening Ratio (dwh/d1)</label>
+                                <input type="number" step="0.01" id="dwh_d1" value="0.4" onchange="updateDimensions()">
+                            </div>
+                            <div class="form-group">
+                                <label>d1 - Web Depth (mm)</label>
+                                <input type="number" step="0.01" id="d1" value="144" onchange="updateDimensions()">
+                            </div>
+                            <div class="form-group">
+                                <label>tw - Web Thickness (mm)</label>
+                                <input type="number" step="0.01" id="tw" value="1.5" onchange="updateDimensions()">
+                            </div>
+                            <div class="form-group">
+                                <label>Flange Width (mm)</label>
+                                <input type="number" step="0.01" id="flange_width" value="60"
+                                    onchange="updateDimensions()">
+                            </div>
+                            <div class="form-group">
+                                <label>Total Depth D (mm)</label>
+                                <input type="number" step="0.01" id="total_depth" value="150"
+                                    onchange="updateDimensions()">
+                            </div>
+                            <div class="form-group">
+                                <label>fyw - Yield Strength (MPa)</label>
+                                <input type="number" step="0.01" id="fyw" value="349.1" onchange="updateDimensions()">
+                            </div>
+                            <div class="form-group">
+                                <label>E - Young's Modulus (MPa)</label>
+                                <input type="number" step="0.01" id="E" value="210000" onchange="updateDimensions()">
+                            </div>
+                            <div class="form-group">
+                                <label>a/d - Aspect Ratio</label>
+                                <input type="number" step="0.01" id="a_d" value="1.0" onchange="updateDimensions()">
+                            </div>
+                        </div>
+
+                        <div class="dimension-labels" id="current-dimensions"></div>
+
+                        <button class="btn" onclick="predictShear()">🚀 Predict Shear Capacity</button>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div>
+                        <h3>📊 Prediction Results</h3>
+                        <div class="result-banner">
+                            <h3 style="margin-bottom: 15px;">Predicted Shear Capacity</h3>
+                            <div class="value" id="capacity-value">---</div>
+                            <div style="font-size: 1.8rem; margin-top: 10px;">kN</div>
+                        </div>
+
+                        <div
+                            style="background: #fff3cd; padding: 20px; border-radius: 12px; margin-top: 20px; border-left: 6px solid #ffc107;">
+                            <h4 style="color: #856404; margin-bottom: 10px;">⚠️ Predicted Failure Mode</h4>
+                            <div style="font-size: 1.3rem; font-weight: bold; color: #333; margin-bottom: 10px;"
+                                id="failure-mode">---</div>
+                            <p style="color: #666;" id="failure-description">Enter parameters and click predict</p>
+                        </div>
+
+                        <h4 style="margin-top: 30px; margin-bottom: 15px; color: #667eea;">🎯 Model Performance Metrics
+                        </h4>
+                        <table class="metrics-table">
+                            <tr>
+                                <th>Metric</th>
+                                <th>Value</th>
+                            </tr>
+                            <tr class="highlight-row">
+                                <td>Model Used</td>
+                                <td>SVR (Support Vector Regression)</td>
+                            </tr>
+                            <tr>
+                                <td>R² Score</td>
+                                <td>0.9952</td>
+                            </tr>
+                            <tr>
+                                <td>MAPE</td>
+                                <td>4.22%</td>
+                            </tr>
+                            <tr>
+                                <td>MAE</td>
+                                <td>1.91 kN</td>
+                            </tr>
+                            <tr>
+                                <td>MSE</td>
+                                <td>5.88</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: BEAM VISUALIZER -->
+        <div id="visualizer-tab" class="tab-content">
+            <div class="card">
+                <h2>📐 Beam Visualizer</h2>
+
+                <div class="visualizer-container">
+                    <h3>Cross-Section View</h3>
+                    <canvas id="crossSectionCanvas" width="600" height="400"></canvas>
+
+                    <h3 style="margin-top: 30px;">Isometric View</h3>
+                    <canvas id="isometricCanvas" width="600" height="400"></canvas>
+                </div>
+
+                <div style="margin-top: 30px; padding: 20px; background: #e3f2fd; border-radius: 12px;">
+                    <h4 style="color: #1976d2; margin-bottom: 15px;">📏 Visualization Legend</h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                        <div><span
+                                style="display: inline-block; width: 20px; height: 20px; background: #4a90e2; margin-right: 10px;"></span>Steel
+                            Section</div>
+                        <div><span
+                                style="display: inline-block; width: 20px; height: 20px; background: white; border: 2px solid #e74c3c; margin-right: 10px;"></span>Web
+                            Opening</div>
+                        <div><span
+                                style="display: inline-block; width: 20px; height: 20px; background: #ffc107; margin-right: 10px;"></span>Critical
+                            Zone</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: FAILURE MODES -->
+        <div id="failure-modes-tab" class="tab-content">
+            <div class="card">
+                <h2>⚠️ Failure Modes Analysis</h2>
+
+                <p style="font-size: 1.1rem; color: #666; margin-bottom: 25px;">
+                    Perforated beams can fail through various mechanisms depending on geometry, opening size, and
+                    material properties. Click on each mode to learn more.
+                </p>
+
+                <div class="failure-modes-grid">
+                    <div class="failure-mode-card" onclick="showFailureMode('shear-yielding')">
+                        <h4>🔸 Shear Yielding</h4>
+                        <p>No opening - Pure shear failure</p>
+                    </div>
+
+                    <div class="failure-mode-card" onclick="showFailureMode('shear-buckling')">
+                        <h4>🔸 Shear Buckling</h4>
+                        <p>Small opening - Local buckling</p>
+                    </div>
+
+                    <div class="failure-mode-card" onclick="showFailureMode('vierendeel')">
+                        <h4>🔸 Vierendeel Mechanism</h4>
+                        <p>Medium opening - Bending dominant</p>
+                    </div>
+
+                    <div class="failure-mode-card" onclick="showFailureMode('web-post')">
+                        <h4>🔸 Web-Post Buckling</h4>
+                        <p>Large opening - Post buckling</p>
+                    </div>
+                </div>
+
+                <!-- Failure Mode Details -->
+                <div id="shear-yielding-details" class="failure-mode-details">
+                    <h3>🔸 Shear Yielding</h3>
+                    <p><strong>Occurs when:</strong> No web opening (dwh/d1 = 0)</p>
+                    <p><strong>Description:</strong> The beam web yields in shear before any other failure mode. This is
+                        the baseline capacity for solid webs.</p>
+                    <p><strong>Typical Capacity:</strong> Highest among all modes</p>
+                    <canvas id="shearYieldingCanvas" width="600" height="300" style="margin-top: 20px;"></canvas>
+                </div>
+
+                <div id="shear-buckling-details" class="failure-mode-details">
+                    <h3>🔸 Shear Buckling (Local)</h3>
+                    <p><strong>Occurs when:</strong> Small opening ratio (dwh/d1 < 0.3)</p>
+                            <p><strong>Description:</strong> Local buckling occurs around the perforation due to stress
+                                concentration. The web buckles in the region adjacent to the opening.</p>
+                            <p><strong>Typical Capacity:</strong> 15-20% reduction from solid web</p>
+                            <canvas id="shearBucklingCanvas" width="600" height="300"
+                                style="margin-top: 20px;"></canvas>
+                </div>
+
+                <div id="vierendeel-details" class="failure-mode-details">
+                    <h3>🔸 Vierendeel Mechanism</h3>
+                    <p><strong>Occurs when:</strong> Medium opening ratio (0.3 ≤ dwh/d1 < 0.6)</p>
+                            <p><strong>Description:</strong> The web sections above and below the opening act as beams
+                                subjected to bending. Plastic hinges form at four locations around the opening, creating
+                                a mechanism.</p>
+                            <p><strong>Typical Capacity:</strong> 30-50% reduction from solid web</p>
+                            <p><strong>Critical for:</strong> Most practical perforated beam designs</p>
+                            <canvas id="vierendeelCanvas" width="600" height="300" style="margin-top: 20px;"></canvas>
+                </div>
+
+                <div id="web-post-details" class="failure-mode-details">
+                    <h3>🔸 Web-Post Buckling</h3>
+                    <p><strong>Occurs when:</strong> Large opening ratio (dwh/d1 ≥ 0.6)</p>
+                    <p><strong>Description:</strong> The thin web section between the opening and the flange (web-post)
+                        buckles under compression. Very large openings create slender web-posts prone to buckling.</p>
+                    <p><strong>Typical Capacity:</strong> 50-70% reduction from solid web</p>
+                    <p><strong>Design Note:</strong> Should be avoided in practice when possible</p>
+                    <canvas id="webPostCanvas" width="600" height="300" style="margin-top: 20px;"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: ANALYSIS GRAPHS -->
+        <div id="analysis-tab" class="tab-content">
+            <div class="card">
+                <h2>📊 Analysis & Performance Graphs</h2>
+
+                <h3>Model Comparison</h3>
+                <div class="graphs-grid">
+                    <div class="graph-card">
+                        <h4>R² Score Comparison</h4>
+                        <img src="../output/model_comparison_r2.png" alt="R2 Comparison">
+                    </div>
+                    <div class="graph-card">
+                        <h4>MAPE Comparison</h4>
+                        <img src="../output/model_comparison_mape.png" alt="MAPE Comparison">
+                    </div>
+                </div>
+
+                <h3>Comprehensive Analysis</h3>
+                <div class="graphs-grid">
+                    <div class="graph-card">
+                        <h4>Predicted vs Actual</h4>
+                        <img src="../output/predicted_vs_actual.png" alt="Predicted vs Actual">
+                    </div>
+                    <div class="graph-card">
+                        <h4>Residual Plots</h4>
+                        <img src="../output/comprehensive/residual_plots.png" alt="Residual Plots">
+                    </div>
+                    <div class="graph-card">
+                        <h4>Error Distributions</h4>
+                        <img src="../output/comprehensive/error_distributions.png" alt="Error Distributions">
+                    </div>
+                    <div class="graph-card">
+                        <h4>Feature Relationships</h4>
+                        <img src="../output/comprehensive/feature_relationships.png" alt="Feature Relationships">
+                    </div>
+                </div>
+
+                <h3>Model Performance Table</h3>
+                <table class="metrics-table">
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>R² Score</th>
+                            <th>MAPE (%)</th>
+                            <th>MAE</th>
+                            <th>MSE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight-row">
+                            <td><strong>SVR (Best)</strong></td>
+                            <td>0.9952</td>
+                            <td>4.22</td>
+                            <td>1.91</td>
+                            <td>5.88</td>
+                        </tr>
+                        <tr>
+                            <td>MLP Neural Network</td>
+                            <td>0.9941</td>
+                            <td>4.16</td>
+                            <td>1.96</td>
+                            <td>7.32</td>
+                        </tr>
+                        <tr>
+                            <td>XGBoost</td>
+                            <td>0.9761</td>
+                            <td>8.24</td>
+                            <td>3.43</td>
+                            <td>29.52</td>
+                        </tr>
+                        <tr>
+                            <td>Gradient Boosting</td>
+                            <td>0.9656</td>
+                            <td>8.95</td>
+                            <td>4.08</td>
+                            <td>42.49</td>
+                        </tr>
+                        <tr>
+                            <td>Random Forest</td>
+                            <td>0.9216</td>
+                            <td>20.44</td>
+                            <td>7.27</td>
+                            <td>96.81</td>
+                        </tr>
+                        <tr>
+                            <td>KNN</td>
+                            <td>0.9126</td>
+                            <td>22.19</td>
+                            <td>8.08</td>
+                            <td>107.83</td>
+                        </tr>
+                        <tr>
+                            <td>Decision Tree</td>
+                            <td>0.8404</td>
+                            <td>30.15</td>
+                            <td>12.52</td>
+                            <td>196.99</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 5: APPLICATIONS -->
+        <div id="applications-tab" class="tab-content">
+            <div class="card">
+                <h2>🏢 Real-World Applications</h2>
+
+                <p style="font-size: 1.1rem; color: #666; margin-bottom: 30px;">
+                    Perforated beams are widely used in modern construction for their efficiency and functionality.
+                </p>
+
+                <div class="applications-grid">
+                    <div class="application-card"
+                        style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                        <h4>🏗️ Structural Steel Buildings</h4>
+                        <p><strong>Benefits:</strong></p>
+                        <ul>
+                            <li>Reduced structural weight (up to 20%)</li>
+                            <li>Lower material costs</li>
+                            <li>Faster construction</li>
+                            <li> Improved aesthetic appeal</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>Examples:</strong> Office buildings, industrial warehouses,
+                            parking structures</p>
+                    </div>
+
+                    <div class="application-card"
+                        style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+                        <h4>🌬️ Service Integration</h4>
+                        <p><strong>Applications:</strong></p>
+                        <ul>
+                            <li>HVAC duct passage through beams</li>
+                            <li>Electrical conduit routing</li>
+                            <li>Plumbing access</li>
+                            <li>Communication cable pathways</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>Advantage:</strong> Reduces floor-to-floor height by 15-20%
+                        </p>
+                    </div>
+
+                    <div class="application-card"
+                        style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
+                        <h4>💰 Cost Optimization</h4>
+                        <p><strong>Economic Benefits:</strong></p>
+                        <ul>
+                            <li>Material savings: 15-25%</li>
+                            <li>Reduced foundation costs</li>
+                            <li>Lower transportation expenses</li>
+                            <li>Decreased installation time</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>ROI:</strong> Typically pays back within first project
+                            phase</p>
+                    </div>
+
+                    <div class="application-card"
+                        style="background: linear-gradient(135deg, #c3cfe2 0%, #c3cfe2 100%);">
+                        <h4>🌱 Sustainable Construction</h4>
+                        <p><strong>Environmental Impact:</strong></p>
+                        <ul>
+                            <li>Reduced carbon footprint</li>
+                            <li>Less raw material consumption</li>
+                            <li>Lower energy in fabrication</li>
+                            <li>Recyclable design</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>Certification:</strong> Contributes to LEED points</p>
+                    </div>
+
+                    <div class="application-card"
+                        style="background: linear-gradient(135deg, #dad4ec 0%, #f3e7e9 100%);">
+                        <h4>🏭 Industrial Applications</h4>
+                        <p><strong>Use Cases:</strong></p>
+                        <ul>
+                            <li>Crane runway beams</li>
+                            <li>Mezzanine floor supports</li>
+                            <li>Equipment platforms</li>
+                            <li>Conveyor supports</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>Special consideration:</strong> Dynamic loading and fatigue
+                        </p>
+                    </div>
+
+                    <div class="application-card"
+                        style="background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);">
+                        <h4>🎓 Design Guidelines</h4>
+                        <p><strong>Best Practices:</strong></p>
+                        <ul>
+                            <li>Opening ratio: dwh/d1 = 0.3-0.5 optimal</li>
+                            <li>Avoid openings at high shear zones</li>
+                            <li>Use reinforcement for large openings</li>
+                            <li>Consider stiffeners when needed</li>
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>Standards:</strong> AISC, Eurocode 3</p>
+                    </div>
+                </div>
+
+                <div
+                    style="margin-top: 40px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; color: white;">
+                    <h3 style="color: white; border: none; margin-bottom: 20px;">🎯 ML Model Applications</h3>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                        <div>
+                            <h4 style="color: white;">Predictive Design</h4>
+                            <p>Quickly evaluate multiple design alternatives without expensive FEA</p>
+                        </div>
+                        <div>
+                            <h4 style="color: white;">Optimization</h4>
+                            <p>Find optimal opening sizes and locations for specific load cases</p>
+                        </div>
+                        <div>
+                            <h4 style="color: white;">Safety Assessment</h4>
+                            <p>Rapid capacity verification for existing structures</p>
+                        </div>
+                        <div>
+                            <h4 style="color: white;">Educational Tool</h4>
+                            <p>Understand parametric influence on beam behavior</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Remove active from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+
+            // Trigger visualizations if needed
+            if (tabName === 'visualizer') {
+                drawCrossSection();
+                drawIsometric();
+            }
+        }
+
+        // Update dimensions display
+        function updateDimensions() {
+            const dwh_d1 = parseFloat(document.getElementById('dwh_d1').value) || 0;
+            const d1 = parseFloat(document.getElementById('d1').value) || 0;
+            const tw = parseFloat(document.getElementById('tw').value) || 0;
+            const D = parseFloat(document.getElementById('total_depth').value) || 0;
+            const dwh = dwh_d1 * d1;
+
+            const html = `
+                <div class="dimension-item">
+                    <div class="label">Opening Depth (dwh)</div>
+                    <div class="value">${dwh.toFixed(2)} mm</div>
+                </div>
+                <div class="dimension-item">
+                    <div class="label">Web Depth (d1)</div>
+                    <div class="value">${d1.toFixed(2)} mm</div>
+                </div>
+                <div class="dimension-item">
+                    <div class="label">Web Thickness (tw)</div>
+                    <div class="value">${tw.toFixed(2)} mm</div>
+                </div>
+                <div class="dimension-item">
+                    <div class="label">Total Depth (D)</div>
+                    <div class="value">${D.toFixed(2)} mm</div>
+                </div>
+            `;
+            document.getElementById('current-dimensions').innerHTML = html;
+        }
+
+        // Determine failure mode
+        function determineFailureMode(capacity, opening_ratio) {
+            if (opening_ratio === 0) {
+                return {
+                    mode: "Shear Yielding",
+                    description: "No web opening - failure by shear yielding of the web"
+                };
+            } else if (opening_ratio < 0.3) {
+                return {
+                    mode: "Shear Buckling (Local)",
+                    description: "Small opening - local shear buckling around perforation"
+                };
+            } else if (opening_ratio < 0.6) {
+                return {
+                    mode: "Vierendeel Mechanism",
+                    description: "Medium opening - Vierendeel bending mechanism governs"
+                };
+            } else {
+                return {
+                    mode: "Web-Post Buckling",
+                    description: "Large opening - web-post buckling between opening and support"
+                };
+            }
+        }
+
+        // Predict shear capacity
+        async function predictShear() {
+            const inputs = {
+                dwh_d1: parseFloat(document.getElementById('dwh_d1').value),
+                d1: parseFloat(document.getElementById('d1').value),
+                tw: parseFloat(document.getElementById('tw').value),
+                flange_width: parseFloat(document.getElementById('flange_width').value),
+                total_depth: parseFloat(document.getElementById('total_depth').value),
+                fyw: parseFloat(document.getElementById('fyw').value),
+                E: parseFloat(document.getElementById('E').value),
+                a_d: parseFloat(document.getElementById('a_d').value)
+            };
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(inputs)
+                });
+
+                const data = await response.json();
+                const capacity = data.shear_capacity_kN;
+
+                document.getElementById('capacity-value').textContent = capacity.toFixed(2);
+
+                const failure = determineFailureMode(capacity, inputs.dwh_d1);
+                document.getElementById('failure-mode').textContent = failure.mode;
+                document.getElementById('failure-description').textContent = failure.description;
+
+            } catch (error) {
+                // Offline fallback
+                const approxCapacity = (inputs.d1 * inputs.tw * inputs.fyw / 1000) * (1 - inputs.dwh_d1 * 0.5);
+                document.getElementById('capacity-value').textContent = approxCapacity.toFixed(2);
+
+                const failure = determineFailureMode(approxCapacity, inputs.dwh_d1);
+                document.getElementById('failure-mode').textContent = failure.mode;
+                document.getElementById('failure-description').textContent = failure.description;
+            }
+        }
+
+        // Draw cross-section
+        function drawCrossSection() {
+            const canvas = document.getElementById('crossSectionCanvas');
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const d1 = parseFloat(document.getElementById('d1').value) || 144;
+            const dwh_d1 = parseFloat(document.getElementById('dwh_d1').value) || 0.4;
+            const dwh = dwh_d1 * d1;
+
+            // Scale for canvas
+            const scale = 2;
+            const offsetX = 200;
+            const offsetY = 100;
+
+            // Draw channel
+            ctx.fillStyle = '#4a90e2';
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 3;
+
+            // Web
+            ctx.fillRect(offsetX, offsetY, 20, d1 * scale);
+            ctx.strokeRect(offsetX, offsetY, 20, d1 * scale);
+
+            // Top flange
+            ctx.fillRect(offsetX, offsetY, 120, 20);
+            ctx.strokeRect(offsetX, offsetY, 120, 20);
+
+            // Bottom flange
+            ctx.fillRect(offsetX, offsetY + d1 * scale - 20, 120, 20);
+            ctx.strokeRect(offsetX, offsetY + d1 * scale - 20, 120, 20);
+
+            // Opening
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 4;
+            const openingCenterY = offsetY + (d1 * scale) / 2;
+            const openingRadius = (dwh * scale) / 2;
+            ctx.beginPath();
+            ctx.arc(offsetX + 10, openingCenterY, openingRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Labels
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText('Cross-Section', 50, 30);
+            ctx.fillText(`Opening: ${dwh.toFixed(1)}mm`, 50, 60);
+            ctx.fillText(`Depth: ${d1.toFixed(1)}mm`, 50, 85);
+        }
+
+        // Draw isometric view
+        function drawIsometric() {
+            const canvas = document.getElementById('isometricCanvas');
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Simple 3D-ish beam representation
+            ctx.fillStyle = '#4a90e2';
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 2;
+
+            // Front face
+            ctx.fillRect(100, 100, 400, 200);
+            ctx.strokeRect(100, 100, 400, 200);
+
+            // Top face (isometric)
+            ctx.beginPath();
+            ctx.moveTo(100, 100);
+            ctx.lineTo(150, 70);
+            ctx.lineTo(550, 70);
+            ctx.lineTo(500, 100);
+            ctx.closePath();
+            ctx.fillStyle = '#5ba3f0';
+            ctx.fill();
+            ctx.stroke();
+
+            // Right face
+            ctx.beginPath();
+            ctx.moveTo(500, 100);
+            ctx.lineTo(550, 70);
+            ctx.lineTo(550, 270);
+            ctx.lineTo(500, 300);
+            ctx.closePath();
+            ctx.fillStyle = '#3a7bc8';
+            ctx.fill();
+            ctx.stroke();
+
+            // Opening on front face
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = '#e74c3c';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(200, 200, 40, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText('Isometric View', 50, 30);
+        }
+
+        // Show failure mode details
+        let currentFailureMode = null;
+        function showFailureMode(mode) {
+            // Hide all details
+            document.querySelectorAll('.failure-mode-details').forEach(detail => {
+                detail.classList.remove('show');
+            });
+
+            // Remove active from all cards
+            document.querySelectorAll('.failure-mode-card').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            // Show selected
+            document.getElementById(mode + '-details').classList.add('show');
+            event.target.closest('.failure-mode-card').classList.add('active');
+
+            // Draw failure mode diagram
+            setTimeout(() => {
+                drawFailureMode(mode);
+            }, 100);
+        }
+
+        // Draw failure mode diagrams
+        function drawFailureMode(mode) {
+            const canvasId = mode.replace('-', '') + 'Canvas';
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw beam outline
+            ctx.strokeStyle = '#2c3e50';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(50, 80, 500, 140);
+
+            if (mode === 'shear-yielding') {
+                // No opening - diagonal shear lines
+                ctx.strokeStyle = '#e74c3c';
+                ctx.lineWidth = 2;
+                for (let i = 0; i < 10; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(100 + i * 40, 80);
+                    ctx.lineTo(60 + i * 40, 220);
+                    ctx.stroke();
+                }
+            } else if (mode === 'shear-buckling') {
+                // Small opening with buckling waves
+                ctx.fillStyle = 'white';
+                ctx.strokeStyle = '#e74c3c';
+                ctx.beginPath();
+                ctx.arc(200, 150, 30, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Buckling waves
+                ctx.strokeStyle = '#ffc107';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(240, 100);
+                ctx.quadraticCurveTo(260, 120, 240, 140);
+                ctx.quadraticCurveTo(220, 160, 240, 180);
+                ctx.stroke();
+            } else if (mode === 'vierendeel') {
+                // Medium opening with plastic hinges
+                ctx.fillStyle = 'white';
+                ctx.strokeStyle = '#e74c3c';
+                ctx.beginPath();
+                ctx.arc(250, 150, 50, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Plastic hinges (red circles)
+                ctx.fillStyle = '#e74c3c';
+                const hinges = [[200, 100], [300, 100], [200, 200], [300, 200]];
+                hinges.forEach(([x, y]) => {
+                    ctx.beginPath();
+                    ctx.arc(x, y, 8, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // Bending moment arrows
+                ctx.strokeStyle = '#ffc107';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(200, 80);
+                ctx.lineTo(200, 100);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(300, 220);
+                ctx.lineTo(300, 200);
+                ctx.stroke();
+            } else if (mode === 'web-post') {
+                // Large opening with web-post buckling
+                ctx.fillStyle = 'white';
+                ctx.strokeStyle = '#e74c3c';
+                ctx.beginPath();
+                ctx.arc(250, 150, 60, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Buckled web post
+                ctx.strokeStyle = '#ffc107';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(250, 80);
+                ctx.quadraticCurveTo(270, 85, 265, 90);
+                ctx.stroke();
+            }
+
+            // Add label
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText('Failure Pattern Visualization', 200, 260);
+        }
+
+        // Initialize
+        updateDimensions();
+        drawCrossSection();
+        drawIsometric();
+    </script>
+</body>
+
+</html>

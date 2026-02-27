@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shear Capacity Predictor</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.875rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            box-sizing: border-box; /* Fix header width issue */
+            transition: border-color 0.2s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+        
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+        }
+        
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        #result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #ecfdf5;
+            border: 1px solid #10b981;
+            border-radius: 0.5rem;
+            color: #065f46;
+            text-align: center;
+            font-weight: 700;
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            color: var(--primary-color);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Shear Capacity Predictor</h1>
+        <div class="form-group">
+            <label for="dwh_d1">Depth of Web opening (dwh/d1)</label>
+            <input type="number" step="0.01" id="dwh_d1" placeholder="e.g. 0.5">
+        </div>
+        <div class="form-group">
+            <label for="d1">d1 (mm)</label>
+            <input type="number" step="0.01" id="d1" placeholder="e.g. 150">
+        </div>
+        <div class="form-group">
+            <label for="tw">tw (mm)</label>
+            <input type="number" step="0.01" id="tw" placeholder="e.g. 1.5">
+        </div>
+        <div class="form-group">
+            <label for="flange_width">Flange Width (mm)</label>
+            <input type="number" step="0.01" id="flange_width" placeholder="e.g. 60">
+        </div>
+        <div class="form-group">
+            <label for="total_depth">Total Depth D (mm)</label>
+            <input type="number" step="0.01" id="total_depth" placeholder="e.g. 150">
+        </div>
+        <div class="form-group">
+            <label for="fyw">Yield Strength fyw (MPa)</label>
+            <input type="number" step="0.01" id="fyw" placeholder="e.g. 350">
+        </div>
+        <div class="form-group">
+            <label for="E">Young's Modulus E (MPa)</label>
+            <input type="number" step="0.01" id="E" placeholder="e.g. 210000">
+        </div>
+        <div class="form-group">
+            <label for="a_d">Aspect Ratio a/d</label>
+            <input type="number" step="0.01" id="a_d" placeholder="e.g. 1.0">
+        </div>
+        
+        <button onclick="predict()">Calculate Capacity</button>
+        
+        <div id="loading" class="loading">Calculating...</div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function predict() {
+            const inputs = {
+                dwh_d1: parseFloat(document.getElementById('dwh_d1').value) || 0,
+                d1: parseFloat(document.getElementById('d1').value) || 0,
+                tw: parseFloat(document.getElementById('tw').value) || 0,
+                flange_width: parseFloat(document.getElementById('flange_width').value) || 0,
+                total_depth: parseFloat(document.getElementById('total_depth').value) || 0,
+                fyw: parseFloat(document.getElementById('fyw').value) || 0,
+                E: parseFloat(document.getElementById('E').value) || 0,
+                a_d: parseFloat(document.getElementById('a_d').value) || 0
+            };
+
+            const loading = document.getElementById('loading');
+            const resultDiv = document.getElementById('result');
+            
+            loading.style.display = 'block';
+            resultDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(inputs)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Prediction failed');
+                }
+
+                const data = await response.json();
+                loading.style.display = 'none';
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `Predicted Shear Capacity: ${data.shear_capacity_kN.toFixed(2)} kN`;
+                
+            } catch (error) {
+                loading.style.display = 'none';
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `Error: ${error.message}`;
+                resultDiv.style.color = 'red';
+                resultDiv.style.backgroundColor = '#fef2f2';
+                resultDiv.style.borderColor = '#ef4444';
+            }
+        }
+    </script>
+</body>
+</html>
